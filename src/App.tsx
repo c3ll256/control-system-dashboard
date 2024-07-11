@@ -28,7 +28,10 @@ const App: React.FC = () => {
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio); // 提高分辨率
         mountRef.current?.appendChild(renderer.domElement);
+
+        scene.rotation.z = Math.PI; // 旋转场景，使 z 轴朝上
 
         const controls = new OrbitControls(camera, renderer.domElement);
         camera.position.set(0, 0, 5);
@@ -37,7 +40,7 @@ const App: React.FC = () => {
         const createPointCloud = (color: number) => {
           const points = new THREE.Points(
             new THREE.BufferGeometry(),
-            new THREE.PointsMaterial({ color: color, size: 0.0005 })
+            new THREE.PointsMaterial({ color: color, size: 0.0001 })
           );
           points.frustumCulled = false; // 这个很重要，可以让相机看到超出视锥体的点云
           return points
@@ -68,6 +71,8 @@ const App: React.FC = () => {
         // 添加 TransformControls
         const transformControl = new TransformControls(camera, renderer.domElement);
         scene.add(transformControl);
+        // 翻转过来
+        transformControl.rotation.z = Math.PI;
         transformControl.attach(tempObjCloud); // 始终附加到临时 objCloud
         transformControlRef.current = transformControl;
 
