@@ -7,12 +7,14 @@ import protobuf from 'protobufjs';
 const App: React.FC = () => {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const [pointCloud, setPointCloud] = useState<THREE.Points | null>(null);
+  const [objCloud, setObjCloud] = useState<THREE.Points | null>(null);
+  const [collisionPoints, setCollisionPoints] = useState<THREE.Points | null>(null);
   const controlSocketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     protobuf.load("/point_cloud.proto")
       .then((root) => {
-        const PointCloud = root.lookupType("PointCloud");
+        const PointClouds = root.lookupType("PointClouds");
         const socket = new WebSocket('ws://localhost:8766');
         controlSocketRef.current = new WebSocket('ws://localhost:8767'); // Control WebSocket
 
@@ -20,7 +22,7 @@ const App: React.FC = () => {
         controlSocketRef.current.binaryType = 'arraybuffer';
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 1000);
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         mountRef.current?.appendChild(renderer.domElement);
@@ -29,12 +31,24 @@ const App: React.FC = () => {
         camera.position.set(0, 0, 5);
         controls.update();
 
-        const newPointCloud = new THREE.Points(
-          new THREE.BufferGeometry(),
-          new THREE.PointsMaterial({ color: 0xF0F0F0, size: 0.0005 })
-        );
+        const createPointCloud = (color: number) => {
+          return new THREE.Points(
+            new THREE.BufferGeometry(),
+            new THREE.PointsMaterial({ color: color, size: 0.0005 })
+          );
+        };
+
+        const newPointCloud = createPointCloud(0xF0F0F0); // Gray color
         scene.add(newPointCloud);
         setPointCloud(newPointCloud);
+
+        const newObjCloud = createPointCloud(0x00ff00); // Green color
+        scene.add(newObjCloud);
+        setObjCloud(newObjCloud);
+
+        const newCollisionPoints = createPointCloud(0xff0000); // Red color
+        scene.add(newCollisionPoints);
+        setCollisionPoints(newCollisionPoints);
 
         socket.onopen = () => {
           console.log('Connected to WebSocket server');
@@ -57,29 +71,27 @@ const App: React.FC = () => {
           // 使用 pako 解压数据
           // const compressedData = new Uint8Array(event.data);
           // const decompressedData = pako.inflate(compressedData);
-          // const protoPointCloud = PointCloud.decode(decompressedData);
+          // const protoPointClouds = PointClouds.decode(decompressedData);
 
           // 不使用 pako 解压数据
-          const protoPointCloud = PointCloud.decode(new Uint8Array(event.data));
-          
-          const points = protoPointCloud.points;
+          const protoPointClouds = PointClouds.decode(new Uint8Array(event.data));
 
-          // if (points.length < 260000) {
-          //   return;
-          // }
+          const updatePointCloud = (pointsList: any, pointCloud: THREE.Points | null) => {
+            const positions = new Float32Array(pointsList.length * 3);
+            pointsList.forEach((point: any, index: number) => {
+              positions[index * 3] = point.x;
+              positions[index * 3 + 1] = point.y;
+              positions[index * 3 + 2] = point.z;
+            });
+            if (pointCloud) {
+              pointCloud.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+              pointCloud.geometry.attributes.position.needsUpdate = true;
+            }
+          };
 
-          const positions = new Float32Array(points.length * 3);
-
-          points.forEach((point: any, index: number) => {
-            positions[index * 3] = point.x;
-            positions[index * 3 + 1] = point.y;
-            positions[index * 3 + 2] = point.z;
-          });
-
-          if (newPointCloud) {
-            newPointCloud.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            newPointCloud.geometry.attributes.position.needsUpdate = true;
-          }
+          updatePointCloud(protoPointClouds.cloud.points, newPointCloud);
+          updatePointCloud(protoPointClouds.objCloud.points, newObjCloud);
+          updatePointCloud(protoPointClouds.collisionPoints.points, newCollisionPoints);
         };
 
         const animate = () => {
@@ -159,7 +171,6 @@ const App: React.FC = () => {
           <button type="submit">Send Control Command</button>
         </form>
       </div>
-
     </div>
   );
 };

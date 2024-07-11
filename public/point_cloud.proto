@@ -9,3 +9,9 @@ message Point {
 message PointCloud {
   repeated Point points = 1;
 }
+
+message PointClouds {
+  PointCloud cloud = 1;
+  PointCloud obj_cloud = 2;
+  PointCloud collision_points = 3;
+}
