@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import pako from 'pako';
 import protobuf from 'protobufjs';
 
@@ -10,6 +11,8 @@ const App: React.FC = () => {
   const [objCloud, setObjCloud] = useState<THREE.Points | null>(null);
   const [collisionPoints, setCollisionPoints] = useState<THREE.Points | null>(null);
   const controlSocketRef = useRef<WebSocket | null>(null);
+  const transformControlRef = useRef<TransformControls | null>(null);
+  const tempObjCloudRef = useRef<THREE.Points | null>(null);
 
   useEffect(() => {
     protobuf.load("/point_cloud.proto")
@@ -50,6 +53,22 @@ const App: React.FC = () => {
         scene.add(newCollisionPoints);
         setCollisionPoints(newCollisionPoints);
 
+        // 初始化 objCloud 位置
+        newObjCloud.position.set(0, 0, 0); // 根据需要设置初始位置
+
+        // 创建临时 objCloud
+        const tempObjCloud = createPointCloud(0x00ff00);
+        tempObjCloud.position.copy(newObjCloud.position);
+        tempObjCloud.rotation.copy(newObjCloud.rotation);
+        scene.add(tempObjCloud);
+        tempObjCloudRef.current = tempObjCloud;
+
+        // 添加 TransformControls
+        const transformControl = new TransformControls(camera, renderer.domElement);
+        scene.add(transformControl);
+        transformControl.attach(tempObjCloud); // 始终附加到临时 objCloud
+        transformControlRef.current = transformControl;
+
         socket.onopen = () => {
           console.log('Connected to WebSocket server');
         };
@@ -89,7 +108,10 @@ const App: React.FC = () => {
             }
           };
 
-          updatePointCloud(protoPointClouds.cloud.points, newPointCloud);
+          if (protoPointClouds.cloud.points.length > 260000) {
+            updatePointCloud(protoPointClouds.cloud.points, newPointCloud);
+          }
+
           updatePointCloud(protoPointClouds.objCloud.points, newObjCloud);
           updatePointCloud(protoPointClouds.collisionPoints.points, newCollisionPoints);
         };
@@ -100,6 +122,26 @@ const App: React.FC = () => {
           renderer.render(scene, camera);
         };
         animate();
+
+        // 监听 TransformControls 的拖动事件，禁用/启用 OrbitControls
+        transformControl.addEventListener('dragging-changed', (event) => {
+          controls.enabled = !event.value;
+          if (!event.value && controlSocketRef.current?.readyState === WebSocket.OPEN) {
+            const position = tempObjCloud.position;
+            const rotation = tempObjCloud.rotation;
+
+            const controlMessage = JSON.stringify({
+              target_x: position.x,
+              target_y: position.y,
+              target_z: position.z,
+              target_rotate_x: rotation.x,
+              target_rotate_y: rotation.y,
+              target_rotate_z: rotation.z,
+            });
+
+            controlSocketRef.current.send(controlMessage);
+          }
+        });
 
         return () => {
           mountRef.current?.removeChild(renderer.domElement);
@@ -112,65 +154,9 @@ const App: React.FC = () => {
       });
   }, []);
 
-  const sendControlCommand = (targetX: number, targetY: number, targetZ: number, targetRotateX: number, targetRotateY: number, targetRotateZ: number) => {
-    if (controlSocketRef.current?.readyState === WebSocket.OPEN) {
-      const controlMessage = JSON.stringify({
-        target_x: targetX,
-        target_y: targetY,
-        target_z: targetZ,
-        target_rotate_x: targetRotateX,
-        target_rotate_y: targetRotateY,
-        target_rotate_z: targetRotateZ,
-      });
-      controlSocketRef.current.send(controlMessage);
-    }
-  };
-
-  const handleControlSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    const form = event.target as HTMLFormElement;
-    const targetX = parseFloat(form.targetX.value);
-    const targetY = parseFloat(form.targetY.value);
-    const targetZ = parseFloat(form.targetZ.value);
-    const targetRotateX = parseFloat(form.targetRotateX.value);
-    const targetRotateY = parseFloat(form.targetRotateY.value);
-    const targetRotateZ = parseFloat(form.targetRotateZ.value);
-
-    sendControlCommand(targetX, targetY, targetZ, targetRotateX, targetRotateY, targetRotateZ);
-  };
-
   return (
     <div className="relative">
       <div ref={mountRef} />
-      <div className="absolute top-0 left-0 bg-white">
-        <form onSubmit={handleControlSubmit}>
-          <div>
-            <label>Target X:</label>
-            <input type="number" name="targetX" step="0.1" defaultValue="0" />
-          </div>
-          <div>
-            <label>Target Y:</label>
-            <input type="number" name="targetY" step="0.1" defaultValue="0" />
-          </div>
-          <div>
-            <label>Target Z:</label>
-            <input type="number" name="targetZ" step="0.1" defaultValue="0" />
-          </div>
-          <div>
-            <label>Target Rotate X:</label>
-            <input type="number" name="targetRotateX" step="0.1" defaultValue="0" />
-          </div>
-          <div>
-            <label>Target Rotate Y:</label>
-            <input type="number" name="targetRotateY" step="0.1" defaultValue="0" />
-          </div>
-          <div>
-            <label>Target Rotate Z:</label>
-            <input type="number" name="targetRotateZ" step="0.1" defaultValue="0" />
-          </div>
-          <button type="submit">Send Control Command</button>
-        </form>
-      </div>
     </div>
   );
 };
