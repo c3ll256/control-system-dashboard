@@ -25,7 +25,7 @@ const App: React.FC = () => {
         controlSocketRef.current.binaryType = 'arraybuffer';
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 1000);
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         mountRef.current?.appendChild(renderer.domElement);
@@ -35,10 +35,12 @@ const App: React.FC = () => {
         controls.update();
 
         const createPointCloud = (color: number) => {
-          return new THREE.Points(
+          const points = new THREE.Points(
             new THREE.BufferGeometry(),
             new THREE.PointsMaterial({ color: color, size: 0.0005 })
           );
+          points.frustumCulled = false; // 这个很重要，可以让相机看到超出视锥体的点云
+          return points
         };
 
         const newPointCloud = createPointCloud(0xF0F0F0); // Gray color
