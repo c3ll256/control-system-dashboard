@@ -75,4 +75,17 @@
     height: 100%;
     overflow: auto;
   }
+
+  * {
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* 允许在输入框和文本区域中选择文本 */
+  input, textarea {
+    -webkit-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
+  }
 }
