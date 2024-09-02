@@ -2,7 +2,7 @@ import { FolderOpenIcon, Redo2Icon, SaveIcon, Undo2Icon } from "lucide-react";
 import Control, { ConfigType } from "@/components/control";
 import { SliderHighlight } from "@/components/ui/slide-highlight";
 import { v4 as uuidv4 } from "uuid";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BuckAPIRequest from "@/api/buck";
 
 import Logo from "@/assets/images/index/xonar.svg";
@@ -39,6 +39,52 @@ const Index = () => {
     "W20-1-R": { origin: 50, value: 50, min: 0, max: 100, unit: "mm" },
     "W8": { origin: 50, value: 50, min: 0, max: 100, unit: "mm" },
   });
+  const [inputValue, setInputValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function submitAction(action: string, cycle: number) {
+    BuckAPIRequest.submitAction({
+      "command_sn": "abcdefg",
+      "timestamp": 123456790,
+      "action": action,
+      "_485_id": 17,
+      "cycle": cycle
+    });
+  }
+
+  useEffect(() => {
+    setInputValue(configData[config].value.toString());
+  }, [config, configData]);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const newValue = Number(inputValue);
+    if (isNaN(newValue)) return;
+    setConfigData(prev => {
+      let finalValue;
+      if (newValue >= configData[config].min && newValue <= configData[config].max) {
+        finalValue = newValue;
+      } else {
+        finalValue = newValue > configData[config].max ? configData[config].max : configData[config].min;
+      }
+      submitAction("move", (finalValue - configData[config].value) / 100);
+      return { ...prev, [config]: { ...prev[config], value: finalValue } };
+    });
+  }
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setInputValue(e.target.value);
+  }
+
+  function handleInputBlur() {
+    setInputValue(configData[config].value.toString());
+  }
+
+  function handleInputFocus() {
+    if (inputRef.current) {
+      inputRef.current.select();
+    }
+  }
 
   function handleChangeConfig(config: ConfigType) {
     setConfig(config);
@@ -52,29 +98,20 @@ const Index = () => {
   function handleCommitValue(value: number[]) {
     const cycle = (value[0] - beforeValue[0]) / 100;
     setBeforeValue(value);
-    BuckAPIRequest.submitAction({
-      "command_sn": "abcdefg",
-      "timestamp": 123456790,
-      "action": "move",
-      "_485_id": 17,
-      "cycle": cycle
-    });
+    submitAction("move", cycle);
   }
 
   function handleChangeStep(step: number) {
     setConfigData(prev => {
       const newValue = prev[config].value + step;
+      let finalValue;
       if (newValue >= prev[config].min && newValue <= prev[config].max) {
-        BuckAPIRequest.submitAction({
-          "command_sn": "abcdefg",
-          "timestamp": 123456790,
-          "action": "move",
-          "_485_id": 17,
-          "cycle": step / 100
-        });
-        return { ...prev, [config]: { ...prev[config], value: newValue } };
+        finalValue = newValue;
+      } else {
+        finalValue = newValue > prev[config].max ? prev[config].max : prev[config].min;
       }
-      return prev;
+      submitAction("move", (finalValue - prev[config].value) / 100);
+      return { ...prev, [config]: { ...prev[config], value: finalValue } };
     });
   }
 
@@ -108,7 +145,19 @@ const Index = () => {
           <div className="mb-2 whitespace-nowrap">{ config !== "unselect" ? config : "未选择" }</div>
           <div className="flex items-center justify-center gap-4">
             <div className="h-10 w-10 flex items-center justify-center bg-secondary rounded-full"><Undo2Icon /></div>
-            <div className="w-48 h-10 leading-[2.5rem] text-center text-highlight text-2xl font-light bg-secondary rounded-full">{configData[config].value} mm</div>
+            <form className="w-48 h-10 leading-[2.5rem] text-highlight text-2xl font-light bg-secondary rounded-full flex items-center justify-center gap-1" onSubmit={handleSubmit}>
+              <input 
+                disabled={config === "unselect"}
+                ref={inputRef}
+                type="number" 
+                className="w-[60%] h-full outline-none bg-secondary text-center no-spinner" 
+                value={inputValue} 
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
+                onFocus={handleInputFocus}
+              />
+              <div className="text-xl font-light text-primary/40">{configData[config].unit}</div>
+            </form>
             <div className="h-10 w-10 flex items-center justify-center bg-secondary rounded-full"><Redo2Icon /></div>
           </div>
           <div className="text-md text-highlight">{configData[config].value - configData[config].origin} mm</div>
