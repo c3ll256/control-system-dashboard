@@ -1,17 +1,18 @@
 import { useState } from "react";
 
-type ConfigType = 
+export type ConfigType = 
   "A18" | "L53-L11" | "L50-2" | "L50-2-R" | 
   "H17" | "H30-1" | "H30-1-R" | "H5-1" | 
   "H30-2" | "H30-2-R" | "L53-1" | "W7" |
   "W20-2" | "W20-2-R" | "W20-1" | "W20-1-R" |
   "W8";
 
-export default function Control() {
+export default function Control({ onChange }: { onChange: (config: ConfigType) => void }) {
   const [config, setConfig] = useState<ConfigType | null>(null);
 
   function handleClickConfig(config: ConfigType) {
     setConfig(config);
+    onChange(config);
   }
 
   const createClickArea = (x: number, y: number, width: number, height: number, config: ConfigType) => (

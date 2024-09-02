@@ -1,7 +1,11 @@
 import { FolderOpenIcon, SaveIcon } from "lucide-react";
-import Control from "@/components/control";
+import Control, { ConfigType } from "@/components/control";
 
 const Index = () => {
+  function handleChangeConfig(config: ConfigType) {
+    console.log(config);
+  }
+
   return (
     <div className="h-screen w-screen text-white flex flex-col">
       {/* header */}
@@ -27,12 +31,12 @@ const Index = () => {
 
       {/* adjust */}
       <div className="w-full h-48 flex items-center justify-center">
-        adjust
+        
       </div>
 
       {/* control */}
       <div className="relative w-full">
-        <Control />
+        <Control onChange={handleChangeConfig}/>
       </div>
     </div>
   );
