@@ -27,8 +27,9 @@ export default function Control({ onChange }: { onChange: (config: ConfigType) =
   );
 
   return (
-    <div className="absolute top-0 left-0 w-full h-full px-10">
+    <div className="flex items-center justify-center w-full px-10">
       <svg
+        className="w-full h-auto"
         viewBox="0 0 1114 400"
         fill="none"
         xmlns="http://www.w3.org/2000/svg">
