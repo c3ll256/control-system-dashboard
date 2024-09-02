@@ -1,5 +1,6 @@
 import { FolderOpenIcon, SaveIcon } from "lucide-react";
 import Control, { ConfigType } from "@/components/control";
+import { Slider } from "@/components/ui/slider";
 
 const Index = () => {
   function handleChangeConfig(config: ConfigType) {
@@ -31,7 +32,7 @@ const Index = () => {
 
       {/* adjust */}
       <div className="w-full h-48 flex items-center justify-center">
-        
+        <Slider className="w-full" />
       </div>
 
       {/* control */}
