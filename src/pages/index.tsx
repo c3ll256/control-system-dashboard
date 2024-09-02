@@ -1,9 +1,12 @@
 import { FolderOpenIcon, Redo2Icon, SaveIcon, Undo2Icon } from "lucide-react";
 import Control, { ConfigType } from "@/components/control";
 import { SliderHighlight } from "@/components/ui/slide-highlight";
+import { v4 as uuidv4 } from "uuid";
+import { useState } from "react";
+import BuckAPIRequest from "@/api/buck";
+
 import Logo from "@/assets/images/index/xonar.svg";
 import "@/assets/css/fonts.css"
-import { useState } from "react";
 
 interface Config {
   origin: number;
@@ -15,6 +18,7 @@ interface Config {
 
 const Index = () => {
   const [config, setConfig] = useState<ConfigType>("unselect");
+  const [beforeValue, setBeforeValue] = useState<number[]>([]);
   const [configData, setConfigData] = useState<Record<ConfigType, Config>>({
     "unselect": { origin: 0, value: 0, min: 0, max: 0, unit: "mm" },
     "A18": { origin: 50, value: 50, min: 0, max: 100, unit: "mm" },
@@ -38,16 +42,36 @@ const Index = () => {
 
   function handleChangeConfig(config: ConfigType) {
     setConfig(config);
+    setBeforeValue([configData[config].value]);
   }
 
   function handleChangeValue(value: number[]) {
     setConfigData(prev => ({ ...prev, [config]: { ...prev[config], value: value[0] } }));
   }
 
+  function handleCommitValue(value: number[]) {
+    const cycle = (value[0] - beforeValue[0]) / 100;
+    setBeforeValue(value);
+    BuckAPIRequest.submitAction({
+      "command_sn": "abcdefg",
+      "timestamp": 123456790,
+      "action": "move",
+      "_485_id": 17,
+      "cycle": cycle
+    });
+  }
+
   function handleChangeStep(step: number) {
     setConfigData(prev => {
       const newValue = prev[config].value + step;
       if (newValue >= prev[config].min && newValue <= prev[config].max) {
+        BuckAPIRequest.submitAction({
+          "command_sn": "abcdefg",
+          "timestamp": 123456790,
+          "action": "move",
+          "_485_id": 17,
+          "cycle": step / 100
+        });
         return { ...prev, [config]: { ...prev[config], value: newValue } };
       }
       return prev;
@@ -60,7 +84,7 @@ const Index = () => {
       <header className="relative h-16 w-full px-10 flex justify-center items-center border-b-[2px] border-[#5753C6]">
         <div className="absolute h-full left-10 top-0 flex justify-center items-center gap-5">
           <div className="text-xl">工程1</div>
-          <div className="text-sm px-3 py-1 rounded-full bg-[#0D3C48]">FOMULAR 验证</div>
+          <div className="text-sm px-3 py-1 rounded-full bg-[#0D3C48]">FORMULA 验证</div>
         </div>
 
         <div className="flex items-center justify-center gap-2">
@@ -98,7 +122,7 @@ const Index = () => {
 
           <div className="w-24 whitespace-nowrap text-center text-xl font-light text-primary/40">{configData[config].min} mm</div>
 
-          <SliderHighlight className="w-[32rem]" onValueChange={handleChangeValue} value={[configData[config].value]} min={configData[config].min} max={configData[config].max} step={1} />
+          <SliderHighlight className="w-[32rem]" onValueCommit={handleCommitValue} onValueChange={handleChangeValue} value={[configData[config].value]} min={configData[config].min} max={configData[config].max} step={1} />
 
           <div className="w-24 whitespace-nowrap text-center text-xl font-light text-primary/40">{configData[config].max} mm</div>
 

@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import PointcloudCollision from "./pages/pointcloud-collision";
 import Index from "./pages";
 import { ThemeProvider } from "./components/theme-provider";
+import { Toaster } from "sonner";
 
 const App = () => {
   return (
@@ -12,6 +13,7 @@ const App = () => {
           <Route path="/pcc" element={<PointcloudCollision />} />
         </Routes>
       </BrowserRouter>
+      <Toaster theme="dark" />
     </ThemeProvider>
   );
 };
