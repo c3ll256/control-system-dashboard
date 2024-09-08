@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 import http from '@/lib/http';
 
-export interface Project {
+export type Project = {
   id?: string;
   name: string;
   createdAt?: string;

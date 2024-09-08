@@ -31,7 +31,7 @@ import ProfileAPIRequest, { Profile } from "@/api/profile";
 
 interface ProjectsSidebarProps {
   isOpen: boolean;
-  onClose: () => void;
+  onSelectProfile: (profile: Profile) => void;
 }
 
 const FormSchema = z.object({
@@ -210,7 +210,7 @@ const CreateConfigDialog = ({ projectId }: { projectId: string | null }) => {
 
 export default function ProjectsSidebar({
   isOpen,
-  onClose,
+  onSelectProfile,
 }: ProjectsSidebarProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -231,6 +231,7 @@ export default function ProjectsSidebar({
   function handleSelectProfile(profile: Profile) {
     setSelectedProjectId(profile.projectId);
     setSelectedProfile(profile);
+    onSelectProfile(profile);
   }
 
   return (

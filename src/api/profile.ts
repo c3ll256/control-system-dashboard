@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 import http from '@/lib/http';
 
-export interface Profile {
+export type Profile = {
   id?: string;
   name: string;
   projectId: string;

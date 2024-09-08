@@ -5,17 +5,17 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 // import pako from 'pako';
 import protobuf from 'protobufjs';
 
-interface Point {
+type Point = {
   x: number;
   y: number;
   z: number;
 }
 
-interface PointCloud {
+type PointCloud = {
   points: Point[];
 }
 
-interface PointClouds {
+type PointClouds = {
   cloud: PointCloud;
   objCloud: PointCloud;
   collisionPoints: PointCloud;
