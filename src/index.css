@@ -63,11 +63,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    min-height: -webkit-fill-available;
-  }
-
-  html {
-    height: -webkit-fill-available;
   }
 
   html, body {
@@ -86,6 +81,7 @@
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    outline: none !important;
   }
   
   /* 允许在输入框和文本区域中选择文本 */

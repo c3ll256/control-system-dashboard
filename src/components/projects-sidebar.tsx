@@ -5,6 +5,7 @@ import ProjectAPIRequest, { Project } from "@/api/project";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -26,6 +27,7 @@ import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import IconSpinner from "@/components/icon/IconSpinner";
 import "@/assets/css/fonts.css"
+import ProfileAPIRequest, { Profile } from "@/api/profile";
 
 interface ProjectsSidebarProps {
   isOpen: boolean;
@@ -72,6 +74,13 @@ const CreateProjectDialog = () => {
     }
   }
 
+  function onFocus(e: React.FocusEvent<HTMLInputElement>) {
+    window.scrollTo({
+      top: e.target.offsetTop + e.target.offsetHeight + 50,
+      behavior: 'smooth'
+    });
+  }
+
   return (
     <Dialog onOpenChange={onOpenChange} open={isOpen}>
       <DialogTrigger>
@@ -83,6 +92,7 @@ const CreateProjectDialog = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>新建项目</DialogTitle>
+          <DialogDescription></DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -95,7 +105,7 @@ const CreateProjectDialog = () => {
                 <FormItem>
                   <FormLabel>名称</FormLabel>
                   <FormControl>
-                    <Input placeholder="名称" {...field} />
+                    <Input placeholder="名称" {...field} onFocus={onFocus} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -113,8 +123,9 @@ const CreateProjectDialog = () => {
   );
 };
 
-const CreateConfigDialog = () => {
+const CreateConfigDialog = ({ projectId }: { projectId: string | null }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -122,8 +133,25 @@ const CreateConfigDialog = () => {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast.success("新建配置文件成功");
+  async function onSubmit(formData: z.infer<typeof FormSchema>) {
+    if (!projectId) {
+      toast.error("请先选择项目");
+      return;
+    }
+    try {
+      setIsLoading(true);
+      await ProfileAPIRequest.create({
+        name: formData.name,
+        projectId: projectId,
+        buckVersion: "1.0.0",
+      });
+      toast.success("新建配置文件成功");
+      setIsOpen(false);
+    } catch (error) {
+      toast.error("新建配置文件失败");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function onOpenChange(open: boolean) {
@@ -133,16 +161,26 @@ const CreateConfigDialog = () => {
     }
   }
 
+  function onFocus(e: React.FocusEvent<HTMLInputElement>) {
+    window.scrollTo({
+      top: e.target.offsetTop + e.target.offsetHeight + 50,
+      behavior: 'smooth'
+    });
+  }
+
   return (
     <Dialog onOpenChange={onOpenChange} open={isOpen}>
-      <DialogTrigger>
-        <div className="flex items-center gap-2">
+      <DialogTrigger disabled={!projectId}>
+        <div className={`flex items-center gap-2 ${projectId ? "" : "text-muted"}`}>
           <FilePlus2Icon strokeWidth={1.5} />
           新建配置文件
         </div>
       </DialogTrigger>
       <DialogContent>
-        <DialogHeader>新建配置文件</DialogHeader>
+        <DialogHeader>
+          <DialogTitle>新建配置文件</DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
             <FormField 
@@ -152,14 +190,16 @@ const CreateConfigDialog = () => {
                 <FormItem>
                   <FormLabel>名称</FormLabel>
                   <FormControl>
-                    <Input placeholder="名称" {...field} />
+                    <Input placeholder="名称" {...field} onFocus={onFocus} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex justify-end">
-              <RoundedButton >新建</RoundedButton>
+              <RoundedButton type="submit" disabled={isLoading}>
+                {isLoading && <IconSpinner className="mr-2" />} 新建
+              </RoundedButton>
             </div>
           </form>
         </Form>
@@ -173,7 +213,8 @@ export default function ProjectsSidebar({
   onClose,
 }: ProjectsSidebarProps) {
   const [projects, setProjects] = useState<Project[]>([]);
-
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   useEffect(() => {
     const fetchProjects = async () => {
       const { data } = await ProjectAPIRequest.list();
@@ -182,9 +223,19 @@ export default function ProjectsSidebar({
     fetchProjects();
   }, []);
 
+  function handleSelectProject(projectId: string) {
+    setSelectedProfile(null);
+    setSelectedProjectId(projectId);
+  }
+
+  function handleSelectProfile(profile: Profile) {
+    setSelectedProjectId(profile.projectId);
+    setSelectedProfile(profile);
+  }
+
   return (
     <motion.div
-      style={{ fontFamily: "MiSans" }}
+      style={{ fontFamily: "MiSans", willChange: "width"}}
       className="h-full border-l overflow-hidden bg-black font-light"
       initial={false}
       animate={{
@@ -201,7 +252,7 @@ export default function ProjectsSidebar({
           <CreateProjectDialog />
 
           {/* 新建配置文件 */}
-          <CreateConfigDialog />
+          <CreateConfigDialog projectId={selectedProjectId} />
 
           {/* 导入配置文件 */}
           <div className="flex items-center gap-2">
@@ -210,9 +261,17 @@ export default function ProjectsSidebar({
           </div>
         </div>
 
-        <div>
+        <div className="py-4">
           {projects.map((project) => (
-            <ProjectFolder key={project.id} project={project} />
+            <ProjectFolder
+              project={project}
+              selectedProjectId={selectedProjectId}
+              onSelectProject={handleSelectProject}
+              selectedProfile={selectedProfile}
+              onSelectProfile={handleSelectProfile}
+              type="single" 
+              key={project.id} 
+            />
           ))}
         </div>
       </div>

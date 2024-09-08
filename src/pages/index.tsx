@@ -8,6 +8,8 @@ import Logo from "@/assets/images/index/xonar.svg";
 import "@/assets/css/fonts.css"
 import { toast } from "sonner";
 import ProjectsSidebar from "@/components/projects-sidebar";
+import PlusMinusSquareIcon from "@/components/icon/PlusMinusSquareIcon";
+import { RoundedButton } from "@/components/ui/rouned-button";
 
 export interface Config {
   origin: Decimal;
@@ -143,16 +145,16 @@ const Index = () => {
       </header>
 
       <div className="flex flex-1 w-full">
-        <div className="h-full flex-1">
+        <div className="h-full flex-1 transition-all duration-300 ease-in-out">
           {/* adjust */}
-          <div className="w-full h-56 py-8">
+          <div className="w-full h-48">
             { config !== "unselect" && (
               <div className="w-full h-full flex flex-col items-center justify-center">
                 <div className="flex flex-col items-center justify-center gap-1">
-                  <div className="mb-2 whitespace-nowrap text-lg">{ config }</div>
+
                   <div className="flex items-center justify-center gap-4">
-                    <form 
-                      className="w-56 h-12 leading-[2.5rem] text-highlight border-highlight/30 border text-2xl font-light bg-secondary rounded-full flex items-center justify-center gap-1"
+                    <form
+                      className="w-52 h-10 leading-[2.5rem] text-highlight border-highlight/30 border text-2xl font-light bg-secondary rounded-full flex items-center justify-center gap-1"
                       onSubmit={handleSubmit}
                     >
                       <input
@@ -216,7 +218,7 @@ const Index = () => {
 
                 <div className="flex items-center justify-center gap-8 text-lg">
                   <div className="flex items-center gap-1">
-                    <PlusSquareIcon strokeWidth={1.5}/>
+                    <PlusMinusSquareIcon/>
                     {configData[config].value.minus(configData[config].origin).toString()} {configData[config].unit}
                   </div>
 
@@ -231,8 +233,8 @@ const Index = () => {
           {/* control */}
           <Control onChange={handleChangeConfig} config={config} configData={configData}/>
 
-          <div className="mt-6 px-14 flex items-center justify-between gap-2">
-            <div className="text-[#666666] text-xl font-light flex flex-col gap-2" style={{fontFamily: "MiSans"}}>
+          <div className="mt-6 px-20 flex items-center justify-between gap-2">
+            <div className="text-[#666666] font-light flex flex-col gap-2" style={{fontFamily: "MiSans"}}>
               <div className="flex items-center gap-2">
                 <FolderIcon width={20} height={20} stroke="#666666" strokeWidth={1.5}/>
                 <div>Project 1</div>
@@ -245,15 +247,7 @@ const Index = () => {
             </div>
 
             { !isFolderSidebarOpen && (
-              <button
-                className="w-64 h-12 rounded-full border-primary/10
-                border bg-secondary text-xl font-light text-primary 
-                active:bg-secondary/70 active:text-primary/70 transition-all duration-100 ease-in-out"
-                style={{fontFamily: "MiSans"}}
-                onClick={handleExecute}
-              >
-                执行
-              </button>
+              <RoundedButton className="w-56 h-12 text-lg" onClick={handleExecute}>执行</RoundedButton>
             )}
           </div>
         </div>
