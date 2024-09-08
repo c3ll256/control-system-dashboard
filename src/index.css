@@ -31,7 +31,7 @@
     --radius: 0.5rem
   }
   .dark {
-    --background: 0 0% 3.9%;
+    --background: 0 0% 3.5%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -63,12 +63,18 @@
   }
   body {
     @apply bg-background text-foreground;
+    min-height: -webkit-fill-available;
+  }
+
+  html {
+    height: -webkit-fill-available;
   }
 
   html, body {
     margin: 0;
     height: 100%;
     overflow: hidden;
+    position: fixed;
   }
   
   #root {
