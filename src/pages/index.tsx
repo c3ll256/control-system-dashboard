@@ -11,35 +11,34 @@ import ParameterConfig from "@/components/parameter-config";
 import { Profile } from "@/api/profile";
 import { ConfigDataType, ConfigKeyType } from "@/components/profile";
 
-// {
-//   "unselect": { origin: new Decimal(0), value: new Decimal(0), min: new Decimal(0), max: new Decimal(0), unit: "mm", step: new Decimal(1) },
-//   "A18": { origin: new Decimal(18.5), value: new Decimal(18.5), min: new Decimal(0), max: new Decimal(25), unit: "°", step: new Decimal(0.1) },
-//   "L63": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "L50-2": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "L50-2-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "H17": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "H30-1": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "H30-1-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "H5-1": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "H30-2": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "H30-2-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "L53-1": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "W7": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "W20-2": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "W20-2-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "W20-1": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "W20-1-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "WBPRP": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "H5-2": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-//   "L53-1-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
-// }
 
 const Index = () => {
   const [isFolderSidebarOpen, setIsFolderSidebarOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [configKey, setConfigKey] = useState<ConfigKeyType>("unselect");
-  const [configData, setConfigData] = useState<Record<ConfigKeyType, ConfigDataType> | null>(null);
-  const [showControl, setShowControl] = useState(true);
+  const [configData, setConfigData] = useState<Record<ConfigKeyType, ConfigDataType> | null>({
+    "unselect": { origin: new Decimal(0), value: new Decimal(0), min: new Decimal(0), max: new Decimal(0), unit: "mm", step: new Decimal(1) },
+    "A18": { origin: new Decimal(18.5), value: new Decimal(18.5), min: new Decimal(0), max: new Decimal(25), unit: "°", step: new Decimal(0.1) },
+    "L63": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "L50-2": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "L50-2-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "H17": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "H30-1": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "H30-1-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "H5-1": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "H30-2": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "H30-2-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "L53-1": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "W7": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "W20-2": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "W20-2-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "W20-1": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "W20-1-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "WBPRP": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "H5-2": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+    "L53-1-R": { origin: new Decimal(50), value: new Decimal(50), min: new Decimal(0), max: new Decimal(100), unit: "mm", step: new Decimal(1) },
+  }
+  );
 
   function handleFolderSidebarOpen() {
     setConfigKey("unselect");
@@ -97,9 +96,10 @@ const Index = () => {
             )}
           </div>
           {/* control */}
-          <Control onChange={handleChangeConfig} showControl={showControl} configKey={configKey} configData={configData}/>
+          <Control onChange={handleChangeConfig} configKey={configKey} configData={configData}/>
 
           <div className="mt-6 px-20 flex items-center justify-between gap-2">
+            { selectedProfile && (
             <div className="text-[#666666] font-light flex flex-col gap-2" style={{fontFamily: "MiSans"}}>
               <div className="flex items-center gap-2">
                 <FolderIcon width={20} height={20} stroke="#666666" strokeWidth={1.5}/>
@@ -111,8 +111,9 @@ const Index = () => {
                 <div>Tesla Model S</div>
               </div>
             </div>
+            )}
 
-            { !isFolderSidebarOpen && (
+            { !isFolderSidebarOpen && selectedProfile && (
               <RoundedButton className="w-56 h-12 text-lg" onClick={handleExecute}>执行</RoundedButton>
             )}
           </div>

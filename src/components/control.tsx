@@ -2,12 +2,10 @@ import ControlBg from "@/assets/images/index/control-bg.png";
 import { ConfigDataType, ConfigKeyType } from "./profile";
 
 export default function Control({
-  showControl,
   onChange,
   configKey,
   configData,
 }: {
-  showControl: boolean;
   onChange: (config: ConfigKeyType) => void;
   configKey: ConfigKeyType;
   configData: Record<ConfigKeyType, ConfigDataType> | null;
@@ -21,7 +19,7 @@ export default function Control({
       <img src={ControlBg} alt="" className="w-full h-auto" />
 
       <div className="absolute z-50 w-full h-full top-0 left-0 px-24 flex items-center justify-center">
-        {showControl && configData && (
+        {configData && (
           <svg
           className="w-full h-auto"
           viewBox="0 0 988 380"
