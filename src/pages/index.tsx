@@ -57,13 +57,9 @@ const Index = () => {
   return (
     <div className="h-screen w-screen flex flex-col" style={{fontFamily: "PlusJakartaSans"}} onContextMenu={(e) => e.preventDefault()}>
       {/* header */}
-      <header className="relative h-14 w-full flex justify-center items-center border-b-[2px] bg-black border-[#5753C6]">
-        <div className="absolute h-full left-8 top-0 flex justify-center items-center gap-5">
-          <SidebarOpenIcon strokeWidth={1.5}/>
-        </div>
-
+      <header className="relative h-14 w-full flex justify-center items-center bg-black">
         <div className="flex items-center justify-center gap-2">
-          <img className="h-full w-auto" src={Logo} alt="xonar" />
+          <img className="h-14 w-auto" src={Logo} alt="xonar" />
           <span className="text-2xl font-medium">XONAR</span>
         </div>
 
@@ -71,6 +67,8 @@ const Index = () => {
           <SaveIcon strokeWidth={1.5}/>
           <FolderOpenIcon strokeWidth={1.5} onClick={handleFolderSidebarOpen}/>
         </div>
+
+        <div className="absolute w-full h-[2px] bottom-0 left-0 bg-gradient-to-r from-[#2A2860] via-[#8080FF] to-[#2A2860]"></div>
       </header>
 
       <div className="flex flex-1 w-full">
