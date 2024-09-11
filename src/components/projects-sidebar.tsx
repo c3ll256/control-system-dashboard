@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import ProjectFolder from "@/components/project";
-import { FolderPlusIcon, FilePlus2Icon, FileInputIcon } from "lucide-react";
-import ProjectAPIRequest, { Project } from "@/api/project";
+import { FolderPlusIcon, FilePlus2Icon, FileInputIcon, ChevronRightIcon } from "lucide-react";
+import ProjectAPIRequest from "@/api/project";
 import {
   Dialog,
   DialogContent,
@@ -27,11 +27,11 @@ import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import IconSpinner from "@/components/icon/IconSpinner";
 import "@/assets/css/fonts.css"
-import ProfileAPIRequest, { Profile } from "@/api/profile";
+import ProfileAPIRequest from "@/api/profile";
+import { useMainStore } from "@/lib/store";
 
 interface ProjectsSidebarProps {
   isOpen: boolean;
-  onSelectProfile: (profile: Profile) => void;
 }
 
 const FormSchema = z.object({
@@ -41,6 +41,7 @@ const FormSchema = z.object({
 });
 
 const CreateProjectDialog = () => {
+  const { fetchProjects } = useMainStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -53,11 +54,10 @@ const CreateProjectDialog = () => {
   async function onSubmit(formData: z.infer<typeof FormSchema>) {
     try {
       setIsLoading(true);
-      const { data } = await ProjectAPIRequest.create({
+      await ProjectAPIRequest.create({
         name: formData.name,
       });
-
-      console.log(data);
+      await fetchProjects();
       toast.success("新建项目成功");
       setIsOpen(false);
     } catch (error) {
@@ -123,7 +123,8 @@ const CreateProjectDialog = () => {
   );
 };
 
-const CreateConfigDialog = ({ projectId }: { projectId: string | null }) => {
+const CreateConfigDialog = () => {
+  const { selectedProject, fetchProjects } = useMainStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -134,7 +135,7 @@ const CreateConfigDialog = ({ projectId }: { projectId: string | null }) => {
   });
 
   async function onSubmit(formData: z.infer<typeof FormSchema>) {
-    if (!projectId) {
+    if (!selectedProject || !selectedProject.id) {
       toast.error("请先选择项目");
       return;
     }
@@ -142,9 +143,10 @@ const CreateConfigDialog = ({ projectId }: { projectId: string | null }) => {
       setIsLoading(true);
       await ProfileAPIRequest.create({
         name: formData.name,
-        projectId: projectId,
+        projectId: selectedProject.id,
         buckVersion: "1.0.0",
       });
+      await fetchProjects();
       toast.success("新建配置文件成功");
       setIsOpen(false);
     } catch (error) {
@@ -170,15 +172,17 @@ const CreateConfigDialog = ({ projectId }: { projectId: string | null }) => {
 
   return (
     <Dialog onOpenChange={onOpenChange} open={isOpen}>
-      <DialogTrigger disabled={!projectId}>
-        <div className={`flex items-center gap-2 ${projectId ? "" : "text-muted"}`}>
+      <DialogTrigger disabled={!selectedProject}>
+        <div className={`flex items-center gap-2 ${selectedProject ? "" : "text-muted"}`}>
           <FilePlus2Icon strokeWidth={1.5} />
           新建配置文件
         </div>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>新建配置文件</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            {selectedProject?.name} <ChevronRightIcon strokeWidth={1.5} /> 新建配置文件
+          </DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -210,29 +214,15 @@ const CreateConfigDialog = ({ projectId }: { projectId: string | null }) => {
 
 export default function ProjectsSidebar({
   isOpen,
-  onSelectProfile,
 }: ProjectsSidebarProps) {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+  const { 
+    projects,
+    fetchProjects,
+  } = useMainStore();
+
   useEffect(() => {
-    const fetchProjects = async () => {
-      const { data } = await ProjectAPIRequest.list();
-      setProjects(data);
-    };
     fetchProjects();
-  }, []);
-
-  function handleSelectProject(projectId: string) {
-    setSelectedProfile(null);
-    setSelectedProjectId(projectId);
-  }
-
-  function handleSelectProfile(profile: Profile) {
-    setSelectedProjectId(profile.projectId);
-    setSelectedProfile(profile);
-    onSelectProfile(profile);
-  }
+  }, [fetchProjects]);
 
   return (
     <motion.div
@@ -253,7 +243,7 @@ export default function ProjectsSidebar({
           <CreateProjectDialog />
 
           {/* 新建配置文件 */}
-          <CreateConfigDialog projectId={selectedProjectId} />
+          <CreateConfigDialog />
 
           {/* 导入配置文件 */}
           <div className="flex items-center gap-2">
@@ -266,10 +256,6 @@ export default function ProjectsSidebar({
           {projects.map((project) => (
             <ProjectFolder
               project={project}
-              selectedProjectId={selectedProjectId}
-              onSelectProject={handleSelectProject}
-              selectedProfile={selectedProfile}
-              onSelectProfile={handleSelectProfile}
               type="single" 
               key={project.id} 
             />

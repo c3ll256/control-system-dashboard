@@ -1,11 +1,14 @@
 import { AxiosResponse } from 'axios';
 import http from '@/lib/http';
+import { ConfigDataStringType, ConfigKeyType } from '@/components/profile';
 
 export type Profile = {
   id?: string;
   name: string;
   projectId: string;
   buckVersion: string;
+  projectName?: string;
+  data?: Record<ConfigKeyType, ConfigDataStringType>;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -19,7 +22,7 @@ export default class ProfileAPIRequest {
     return http.get(`/api/profiles?projectId=${projectId}`);
   }
 
-  public static async get(id: string): Promise<AxiosResponse> {
+  public static async get(id: string): Promise<AxiosResponse<Profile>> {
     return http.get(`/api/profiles/${id}`);
   }
 

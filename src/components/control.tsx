@@ -2,15 +2,18 @@ import ControlBg from "@/assets/images/index/control-bg.png";
 import { ConfigDataType, ConfigKeyType } from "./profile";
 
 export default function Control({
+  disabled,
   onChange,
   configKey,
   configData,
 }: {
+  disabled: boolean;
   onChange: (config: ConfigKeyType) => void;
   configKey: ConfigKeyType;
   configData: Record<ConfigKeyType, ConfigDataType> | null;
 }) {
   function handleClickConfig(config: ConfigKeyType) {
+    if (disabled) return;
     onChange(config);
   }
 

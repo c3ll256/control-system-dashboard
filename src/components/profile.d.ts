@@ -28,3 +28,12 @@ export type ConfigDataType = {
   unit: string;
   step: Decimal;
 };
+
+export type ConfigDataStringType = {
+  origin: string;
+  value: string;
+  min: string;
+  max: string;
+  unit: string;
+  step: string;
+};

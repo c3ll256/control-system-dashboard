@@ -11,16 +11,23 @@ import { useEffect, useState } from "react";
 import "@/assets/css/fonts.css"
 import { AccordionSingleProps } from "@radix-ui/react-accordion";
 import React from "react";
+import { useMainStore, useTabStore } from "@/lib/store";
 
 export interface ProjectFolderProps extends AccordionSingleProps {
   project: Project;
-  selectedProjectId: string | null;
-  onSelectProject: (projectId: string) => void;
-  selectedProfile: Profile | null;
-  onSelectProfile: (profile: Profile) => void;
 }
 
-const ProjectFolder = React.forwardRef<HTMLDivElement, ProjectFolderProps>(({ project, selectedProjectId, selectedProfile, onSelectProfile, onSelectProject, ...props }, ref) => {
+const ProjectFolder = React.forwardRef<HTMLDivElement, ProjectFolderProps>(({
+  project,
+  ...props
+}, ref) => {
+  const { 
+    selectedProfile,
+    setSelectedProfile,
+    selectedProject,
+    setSelectedProject
+  } = useMainStore();
+  const { addTab, setActiveTabById } = useTabStore();
   const [profiles, setProfiles] = useState<Profile[]>([]);
 
   useEffect(() => {
@@ -32,18 +39,33 @@ const ProjectFolder = React.forwardRef<HTMLDivElement, ProjectFolderProps>(({ pr
     fetchProfile();
   }, [project]);
 
-  useEffect(() => {
-    console.log(selectedProfile);
-  }, [selectedProfile]);
+  async function handleSelectProfile(profile: Profile) {
+    try {
+      setSelectedProfile(profile);
+      setSelectedProject(project);
 
-  function handleSelectProfile(profile: Profile) {
-    onSelectProfile(profile);
+      const { data } = await ProfileAPIRequest.get(profile.id || "");
+      addTab({
+        id: profile.id || "",
+        title: profile.name || "",
+        type: "temporary",
+        profile: data,
+      });
+      setActiveTabById(profile.id || "");
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function handleSelectProject() {
+    setSelectedProject(project);
+    setSelectedProfile(null);
   }
 
   return (
     <Accordion collapsible {...props} ref={ref}>
       <AccordionItem value="item-1">
-        <AccordionTrigger onClick={() => onSelectProject(project.id ?? '')} className={selectedProjectId === project.id && selectedProfile === null ? "bg-secondary" : ""}>
+        <AccordionTrigger onClick={handleSelectProject} className={selectedProject?.id === project.id && selectedProfile === null ? "project-trigger bg-secondary" : "project-trigger"}>
           <div className="flex items-center gap-2 text-lg font-light" style={{ fontFamily: "MiSans" }}>
             <FolderIcon strokeWidth={1.5} />
             <div className="w-44 whitespace-nowrap overflow-hidden text-ellipsis text-left">{project.name}</div>
