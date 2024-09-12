@@ -1,7 +1,20 @@
 import { useTabStore } from "@/lib/store";
 import { Tab } from "@/lib/store/tab";
-import { XIcon } from "lucide-react";
+import { DotIcon, XIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
+import { RoundedButton } from "@/components/ui/rouned-button";
+import { ConfigKeyType } from "./profile";
+import ProfileAPIRequest from "@/api/profile";
+import { toast } from "sonner";
 
 const Tabs = () => {
   const { tabs, setActiveTab, activeTabIndex, setActiveTabIndex, closeTab } =
@@ -10,6 +23,28 @@ const Tabs = () => {
   function handleTabClick(tab: Tab, index: number) {
     setActiveTab(tab);
     setActiveTabIndex(index);
+  }
+
+  async function saveThenClose(tab: Tab) {
+    const profileData = tab.profile.data;
+    if (tab.status === "unsaved" && profileData) {
+      for (const key in profileData) {
+        if (Object.prototype.hasOwnProperty.call(profileData, key)) {
+          profileData[key as ConfigKeyType].origin =
+            profileData[key as ConfigKeyType].value;
+        }
+      }
+
+      try {
+        await ProfileAPIRequest.update(tab.profile.id || "", {
+          data: profileData,
+        });
+        closeTab(tab.id);
+        toast.success("保存成功");
+      } catch (error) {
+        toast.error("保存失败");
+      }
+    }
   }
 
   return (
@@ -35,15 +70,45 @@ const Tabs = () => {
               onClick={() => handleTabClick(tab, index)}
               layoutId={`tab-${tab.id}`}>
               <span>{tab.title}</span>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  closeTab(tab.id);
-                }}>
-                <XIcon strokeWidth={1.5} className="w-4 h-4" />
-              </motion.button>
+              {tab.status === "saved" && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    closeTab(tab.id);
+                  }}>
+                  <XIcon strokeWidth={1.5} className="w-4 h-4" />
+                </button>
+              )}
+              {tab.status === "unsaved" && (
+                <Dialog>
+                  <DialogTrigger>
+                    <DotIcon strokeWidth={12} className="w-4 h-4" />
+                  </DialogTrigger>
+                  <DialogContent className="w-96">
+                    <DialogHeader>
+                      <DialogTitle>配置未保存</DialogTitle>
+                      <DialogDescription>是否保存配置？</DialogDescription>ß
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 mt-6">
+                      <RoundedButton
+                        className="text-destructive bg-red-800/10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          closeTab(tab.id);
+                        }}>
+                        不保存并关闭
+                      </RoundedButton>
+                      <RoundedButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          saveThenClose(tab);
+                        }}>
+                        保存并关闭
+                      </RoundedButton>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
             </motion.div>
             {index !== tabs.length - 1 &&
               index !== activeTabIndex - 1 &&

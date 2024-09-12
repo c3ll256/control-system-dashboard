@@ -22,10 +22,12 @@ const Index = () => {
   const [configData, setConfigData] = useState<Record<ConfigKeyType, ConfigDataType> | null>(null);
 
   useEffect(() => {
+    console.log("activeTab", activeTab);
     if (activeTab && activeTab.profile.data) {
       setConfigData(convertStringDataToDecimalData(activeTab.profile.data));
     } else {
       setConfigData(null);
+      setConfigKey("unselect");
     }
   }, [activeTab]);
 
@@ -57,6 +59,7 @@ const Index = () => {
       if (activeTab) {
         updateTab({
           ...activeTab,
+          status: "saved",
           profile: {
             ...activeTab.profile,
             data: saveData,
