@@ -5,6 +5,7 @@ export type Tab = {
   id: string;
   title: string;
   type: "temporary" | "permanent";
+  status: "unsaved" | "saved";
   profile: Profile;
 }
 
@@ -13,6 +14,7 @@ export interface TabState {
   activeTab: Tab | null;
   activeTabIndex: number;
   addTab: (tab: Tab) => void;
+  updateTab: (tab: Tab) => void;
   setTabs: (tabs: Tab[]) => void;
   setActiveTabById: (id: string) => void;
   setActiveTab: (tab: Tab) => void;
@@ -25,9 +27,23 @@ export const TabStateCreator: StateCreator<TabState> = (set, get) => ({
   activeTab: null,
   activeTabIndex: 0,
   addTab: (tab: Tab) => {
-    // 如果当前 tabs 中已经存在该 tab，则不添加
-    if (get().tabs.some((t: Tab) => t.id === tab.id)) return;
-    set({ tabs: [...get().tabs, tab], activeTabIndex: get().tabs.length });
+    const existTab = get().tabs.find((t: Tab) => t.id === tab.id);
+    // 如果当前 tabs 中已经存在该 tab，则将 activeTab 设置为该 tab
+    if (existTab) {
+      set({ activeTab: existTab })
+      set({ activeTabIndex: get().tabs.findIndex((t: Tab) => t.id === existTab.id) })
+    } else {
+      set({ tabs: [...get().tabs, tab], activeTabIndex: get().tabs.length });
+    }
+  },
+  updateTab: (tab: Tab) => {
+    const tabs = get().tabs.map((t: Tab) => t.id === tab.id ? tab : t);
+    set({ tabs })
+
+    // 如果当前激活的 tab 是该 tab，则更新 activeTab
+    if (get().activeTab?.id === tab.id) {
+      set({ activeTab: tab })
+    }
   },
   setTabs: (tabs: Tab[]) => set({ tabs }),
   setActiveTabById: (id: string) => {

@@ -23,8 +23,7 @@ export default function ParameterConfig({configData, onChange, config}: Paramete
     }
   }, [config, configData]);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  function setValue() {
     if (!inputValue) {
       toast.error("请输入正确数值");
       return;
@@ -47,6 +46,11 @@ export default function ParameterConfig({configData, onChange, config}: Paramete
     onChange({ ...configData, value: finalValue });
   }
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setValue();
+  }
+
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     setInputValue(e.target.value);
   }
@@ -57,6 +61,7 @@ export default function ParameterConfig({configData, onChange, config}: Paramete
       return;
     }
     setInputValue(configData.value.toString());
+    setValue();
   }
 
   function handleInputFocus() {

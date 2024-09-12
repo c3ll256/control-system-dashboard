@@ -49,6 +49,7 @@ const ProjectFolder = React.forwardRef<HTMLDivElement, ProjectFolderProps>(({
         id: profile.id || "",
         title: profile.name || "",
         type: "temporary",
+        status: "saved",
         profile: data,
       });
       setActiveTabById(profile.id || "");

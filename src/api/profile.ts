@@ -4,9 +4,9 @@ import { ConfigDataStringType, ConfigKeyType } from '@/components/profile';
 
 export type Profile = {
   id?: string;
-  name: string;
-  projectId: string;
-  buckVersion: string;
+  name?: string;
+  projectId?: string;
+  buckVersion?: string;
   projectName?: string;
   data?: Record<ConfigKeyType, ConfigDataStringType>;
   createdAt?: string;

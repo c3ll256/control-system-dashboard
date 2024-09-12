@@ -1,4 +1,4 @@
-import { FileCogIcon, FolderIcon, FolderOpenIcon, SaveIcon, SidebarOpenIcon } from "lucide-react";
+import { FileCogIcon, FolderIcon, FolderOpenIcon, SaveIcon } from "lucide-react";
 import Control from "@/components/control";
 import { useEffect, useState } from "react";
 
@@ -9,17 +9,19 @@ import { RoundedButton } from "@/components/ui/rouned-button";
 import ParameterConfig from "@/components/parameter-config";
 import { ConfigDataType, ConfigKeyType } from "@/components/profile";
 import Tabs from "@/components/tabs";
-import { useTabStore } from "@/lib/store";
-import { convertStringDataToDecimalData } from "@/lib/utils";
+import { useMainStore, useTabStore } from "@/lib/store";
+import { convertDecimalDataToStringData, convertStringDataToDecimalData } from "@/lib/utils";
+import ProfileAPIRequest from "@/api/profile";
+import { toast } from "sonner";
 
 const Index = () => {
-  const { activeTab } = useTabStore();
+  const { activeTab, updateTab } = useTabStore();
+  const { fetchProjects } = useMainStore();
   const [isFolderSidebarOpen, setIsFolderSidebarOpen] = useState(false);
   const [configKey, setConfigKey] = useState<ConfigKeyType>("unselect");
   const [configData, setConfigData] = useState<Record<ConfigKeyType, ConfigDataType> | null>(null);
 
   useEffect(() => {
-    console.log(activeTab);
     if (activeTab && activeTab.profile.data) {
       setConfigData(convertStringDataToDecimalData(activeTab.profile.data));
     } else {
@@ -27,9 +29,44 @@ const Index = () => {
     }
   }, [activeTab]);
 
+  useEffect(() => {
+    if (isFolderSidebarOpen) {
+      fetchProjects();
+    }
+  }, [fetchProjects, isFolderSidebarOpen]);
+
   function handleFolderSidebarOpen() {
     setConfigKey("unselect");
     setIsFolderSidebarOpen(prev => !prev);
+  }
+
+  async function handleSave() {
+    if (!configData) return;
+    const saveData = convertDecimalDataToStringData(configData);
+    // 把 所有的 origin 改为现在的 value
+    for (const key in saveData) {
+      if (Object.prototype.hasOwnProperty.call(saveData, key)) {
+        saveData[key as ConfigKeyType].origin = saveData[key as ConfigKeyType].value;
+      }
+    }
+
+    try {
+      await ProfileAPIRequest.update(activeTab?.profile.id || "", {
+        data: saveData,
+      });
+      if (activeTab) {
+        updateTab({
+          ...activeTab,
+          profile: {
+            ...activeTab.profile,
+            data: saveData,
+          },
+        });
+      }
+      toast.success("保存成功");
+    } catch (error) {
+      toast.error("保存失败");
+    }
   }
 
   function handleChangeConfig(config: ConfigKeyType) {
@@ -42,6 +79,18 @@ const Index = () => {
       const newConfig = { ...prev[configKey], value: newConfigData.value};
       return { ...prev, [configKey]: newConfig };
     });
+
+    // 更新 tab
+    if (activeTab && configData) {
+      updateTab({
+        ...activeTab,
+        status: "unsaved",
+        profile: {
+          ...activeTab.profile,
+          data: convertDecimalDataToStringData({ ...configData, [configKey]: newConfigData}),
+        },
+      });
+    }
   }
 
   function handleExecute() {
@@ -64,7 +113,7 @@ const Index = () => {
         </div>
 
         <div className="absolute h-full right-8 top-0 flex items-center justify-center gap-8">
-          <SaveIcon strokeWidth={1.5}/>
+          <SaveIcon strokeWidth={1.5} onClick={handleSave}/>
           <FolderOpenIcon strokeWidth={1.5} onClick={handleFolderSidebarOpen}/>
         </div>
 
