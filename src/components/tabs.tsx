@@ -87,7 +87,7 @@ const Tabs = () => {
                   <DialogContent className="w-96">
                     <DialogHeader>
                       <DialogTitle>配置未保存</DialogTitle>
-                      <DialogDescription>是否保存配置？</DialogDescription>ß
+                      <DialogDescription>是否保存配置？</DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2 mt-6">
                       <RoundedButton
