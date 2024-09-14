@@ -1,4 +1,4 @@
-import { FileCogIcon, FolderIcon, FolderOpenIcon, SaveIcon } from "lucide-react";
+import { FileCogIcon, FolderIcon, FolderOpenIcon, PaintBucket, SaveIcon } from "lucide-react";
 import Control from "@/components/control";
 import { useEffect, useState } from "react";
 
@@ -13,6 +13,7 @@ import { useMainStore, useTabStore } from "@/lib/store";
 import { convertDecimalDataToStringData, convertStringDataToDecimalData } from "@/lib/utils";
 import ProfileAPIRequest from "@/api/profile";
 import { toast } from "sonner";
+import BuckAPIRequest from "@/api/buck";
 
 const Index = () => {
   const { activeTab, updateTab } = useTabStore();
@@ -96,7 +97,7 @@ const Index = () => {
     }
   }
 
-  function handleExecute() {
+  async function handleExecute() {
     const submitData: Record<string, string> = {};
     for (const key in configData) {
       if (Object.prototype.hasOwnProperty.call(configData, key) && key !== "unselect") {
@@ -104,6 +105,8 @@ const Index = () => {
         submitData[key as ConfigKeyType] = changeValue.toString();
       }
     }
+
+    await BuckAPIRequest.submitAction(submitData);
   }
 
   return (
