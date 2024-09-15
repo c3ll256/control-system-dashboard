@@ -116,17 +116,13 @@ const Index = () => {
   }
 
   async function handleExecute() {
-    const submitData: Record<string, string> = {};
+    const submitData = {} as Record<ConfigKeyType, string>; 
+
     for (const key in configData) {
-      if (
-        Object.prototype.hasOwnProperty.call(configData, key) &&
-        key !== "unselect"
-      ) {
-        const currentData =
-          currentBuckData?.[key as ConfigKeyType] ||
-          configData[key as ConfigKeyType].origin;
-        const changeValue =
-          configData[key as ConfigKeyType].value.minus(currentData);
+      if (key !== "unselect") {
+        const configItem = configData[key as ConfigKeyType];
+        const currentData = currentBuckData?.[key as ConfigKeyType] || configItem.origin;
+        const changeValue = configItem.value.minus(currentData);
         submitData[key as ConfigKeyType] = changeValue.toString();
       }
     }
@@ -134,33 +130,22 @@ const Index = () => {
     try {
       await BuckAPIRequest.submitAction(submitData);
 
-      // 更新或创建 buck data
-      if (currentBuckData) {
-        for (const key in submitData) {
-          if (Object.prototype.hasOwnProperty.call(submitData, key)) {
-            currentBuckData[key as ConfigKeyType] = new Decimal(
-              currentBuckData[key as ConfigKeyType]
-            ).add(new Decimal(submitData[key as ConfigKeyType]));
-          }
-        }
-        setCurrentBuckData(currentBuckData);
-      } else {
-        const newBuckData = {} as Record<ConfigKeyType, Decimal>;
-        for (const key in submitData) {
-          if (Object.prototype.hasOwnProperty.call(submitData, key)) {
-            if (configData && configData[key as ConfigKeyType]) {
-              newBuckData[key as ConfigKeyType] = configData[
-                key as ConfigKeyType
-              ].origin.add(new Decimal(submitData[key as ConfigKeyType]));
-            }
-          }
-        }
-        setCurrentBuckData(newBuckData);
+      const updatedBuckData = {
+        ...(currentBuckData || {}),
+      } as Record<ConfigKeyType, Decimal>;
+
+      for (const key in submitData) {
+        const changeValue = new Decimal(submitData[key as ConfigKeyType]);
+        const currentValue =
+          updatedBuckData[key as ConfigKeyType] || configData?.[key as ConfigKeyType]?.origin || new Decimal(0);
+        updatedBuckData[key as ConfigKeyType] = currentValue.add(changeValue);
       }
+
+      setCurrentBuckData(updatedBuckData);
       console.log(submitData);
       toast.success("执行成功");
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("执行失败");
     }
   }
