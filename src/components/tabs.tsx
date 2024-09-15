@@ -17,11 +17,10 @@ import ProfileAPIRequest from "@/api/profile";
 import { toast } from "sonner";
 
 const Tabs = () => {
-  const { tabs, setActiveTab, activeTabIndex, setActiveTabIndex, closeTab } =
+  const { tabs, activeTabIndex, setActiveTabIndex, closeTab } =
     useTabStore();
 
-  function handleTabClick(tab: Tab, index: number) {
-    setActiveTab(tab);
+  function handleTabClick(index: number) {
     setActiveTabIndex(index);
   }
 
@@ -67,7 +66,7 @@ const Tabs = () => {
                   ? "bg-background rounded-t-xl"
                   : "bg-black text-muted"
               }`}
-              onClick={() => handleTabClick(tab, index)}
+              onClick={() => handleTabClick(index)}
               layoutId={`tab-${tab.id}`}>
               <span>{tab.title}</span>
               {tab.status === "saved" && (
@@ -111,6 +110,7 @@ const Tabs = () => {
               )}
             </motion.div>
             {index !== tabs.length - 1 &&
+              activeTabIndex !== null &&
               index !== activeTabIndex - 1 &&
               index !== activeTabIndex && (
                 <motion.div

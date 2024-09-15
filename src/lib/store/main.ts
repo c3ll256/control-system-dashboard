@@ -1,5 +1,7 @@
 import { Profile } from "@/api/profile";
 import ProjectAPIRequest, { Project } from "@/api/project";
+import { ConfigKeyType } from "@/components/profile";
+import Decimal from "decimal.js";
 import { StateCreator } from "zustand";
 
 export interface MainState {
@@ -9,6 +11,8 @@ export interface MainState {
   setSelectedProject: (project: Project | null) => void;
   setSelectedProfile: (profile: Profile | null) => void;
   fetchProjects: () => Promise<void>;
+  currentBuckData: Record<ConfigKeyType, Decimal> | null;
+  setCurrentBuckData: (data: Record<ConfigKeyType, Decimal>) => void;
 }
 
 export const MainStateCreator: StateCreator<MainState> = (set) => ({
@@ -21,4 +25,6 @@ export const MainStateCreator: StateCreator<MainState> = (set) => ({
     const { data } = await ProjectAPIRequest.list();
     set({ projects: data });
   },
+  currentBuckData: null,
+  setCurrentBuckData: (data: Record<ConfigKeyType, Decimal>) => set({ currentBuckData: data }),
 });
