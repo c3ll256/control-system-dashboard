@@ -12,6 +12,7 @@ import "@/assets/css/fonts.css"
 import { AccordionSingleProps } from "@radix-ui/react-accordion";
 import React from "react";
 import { useMainStore, useTabStore } from "@/lib/store";
+import { Tab } from "@/lib/store/tab";
 
 export interface ProjectFolderProps extends AccordionSingleProps {
   project: Project;
@@ -45,13 +46,13 @@ const ProjectFolder = React.forwardRef<HTMLDivElement, ProjectFolderProps>(({
       setSelectedProject(project);
 
       const { data } = await ProfileAPIRequest.get(profile.id || "");
-      addTab({
-        id: profile.id || "",
-        title: profile.name || "",
-        type: "temporary",
-        status: "saved",
-        profile: data,
-      });
+      addTab(new Tab(
+        profile.id || "",
+        profile.name || "",
+        "temporary",
+        "saved",
+        data,
+      ));
       setActiveTabById(profile.id || "");
     } catch (error) {
       console.error(error);

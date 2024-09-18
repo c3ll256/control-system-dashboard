@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SliderHighlight } from "@/components/ui/slide-highlight";
 import PlusMinusSquareIcon from "@/components/icon/PlusMinusSquareIcon";
@@ -7,48 +7,66 @@ import Decimal from "decimal.js";
 import { ConfigDataType, ConfigKeyType } from "./profile";
 
 interface ParameterConfigProps {
-  configData: ConfigDataType | null;
-  onChange: (config: ConfigDataType) => void;
+  configData: Record<ConfigKeyType, ConfigDataType> | null;
+  onChange: (newConfigData: Record<ConfigKeyType, ConfigDataType>) => void;
+  onChangeBuck: (newBuckData: Record<string, Decimal>) => void;
   config: ConfigKeyType;
 }
 
 
-export default function ParameterConfig({configData, onChange, config}: ParameterConfigProps) {
+export default function ParameterConfig({configData, onChange, onChangeBuck, config}: ParameterConfigProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState("");
+  const currentConfig = useMemo(() => configData?.[config], [config, configData]);
 
   useEffect(() => {
-    if (configData) {
-      setInputValue(configData.value.toString());
+    if (currentConfig) {
+      setInputValue(currentConfig.value.toString());
     }
-  }, [config, configData]);
+  }, [currentConfig]);
 
-  function setValue() {
-    if (!inputValue) {
-      toast.error("请输入正确数值");
-      return;
-    }
-    const newValue = new Decimal(inputValue);
-    if (newValue.isNaN()) {
-      toast.error("请输入正确数值");
-      return;
-    };
-    if (!configData) {
+  function handleValueChange(newValue: Decimal | number) {
+    if (!currentConfig) {
       toast.error("请先选择一个配置");
       return;
     }
-    let finalValue: Decimal;
-    if (newValue.gte(configData.min) && newValue.lte(configData.max)) {
-      finalValue = newValue;
-    } else {
-      finalValue = newValue.gt(configData.max) ? configData.max : configData.min;
+
+    const decimalValue = new Decimal(newValue);
+    if (decimalValue.isNaN()) {
+      toast.error("请输入正确数值");
+      return;
     }
-    onChange({ ...configData, value: finalValue });
+
+    if (!configData) return;
+
+    let finalValue: Decimal;
+    if (decimalValue.gte(currentConfig.min) && decimalValue.lte(currentConfig.max)) {
+      finalValue = decimalValue;
+    } else {
+      finalValue = decimalValue.gt(currentConfig.max) ? currentConfig.max : currentConfig.min;
+    }
+
+    const changeDis = finalValue.minus(currentConfig.value);
+    const changeBuck = { [config]: changeDis };
+
+    if (config === "L53-1") {
+      configData["L50-2"].value = configData["L50-2"].value.minus(changeDis);
+    }
+
+    if (config === "L53-1-R") {
+      configData["L50-2-R"].value = configData["L50-2-R"].value.minus(changeDis);
+    }
+
+    configData[config].value = finalValue;
+    onChangeBuck(changeBuck);
+
+    onChange(configData);
+    setInputValue(finalValue.toString());
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setValue();
+    handleValueChange(new Decimal(inputValue));
   }
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -56,45 +74,23 @@ export default function ParameterConfig({configData, onChange, config}: Paramete
   }
 
   function handleInputBlur() {
-    if (!configData) {
-      toast.error("请先选择一个配置");
-      return;
-    }
-    setInputValue(configData.value.toString());
-    setValue();
+    handleValueChange(new Decimal(inputValue));
   }
 
   function handleInputFocus() {
-    if (!configData) {
-      toast.error("请先选择一个配置");
-      return;
-    }
     if (inputRef.current) {
       inputRef.current.select();
     }
   }
 
-  function handleChangeValue(value: number[]) {
-    if (!configData) {
-      toast.error("请先选择一个配置");
-      return;
-    }
-    onChange({ ...configData, value: new Decimal(value[0]) });
+  function handleSliderChange(value: number[]) {
+    handleValueChange(value[0]);
   }
 
-  function handleChangeStep(step: number) {
-    if (!configData) {
-      toast.error("请先选择一个配置");
-      return;
-    }
-    const newValue = configData.value.plus(configData.step.times(step));
-    let finalValue: Decimal;
-    if (newValue.gte(configData.min) && newValue.lte(configData.max)) {
-      finalValue = newValue;
-    } else {
-      finalValue = newValue.gt(configData.max) ? configData.max : configData.min;
-    }
-    onChange({ ...configData, value: finalValue });
+  function handleStepChange(step: number) {
+    if (!currentConfig) return;
+    const newValue = currentConfig.value.plus(currentConfig.step.times(step));
+    handleValueChange(newValue);
   }
 
   return (
@@ -114,7 +110,7 @@ export default function ParameterConfig({configData, onChange, config}: Paramete
               onFocus={handleInputFocus}
             />
             <div className="text-xl font-light text-primary/40">
-              {configData?.unit}
+              {currentConfig?.unit}
             </div>
           </form>
         </div>
@@ -124,43 +120,43 @@ export default function ParameterConfig({configData, onChange, config}: Paramete
         <div className="flex items-center justify-center gap-6">
           <div
             className="h-14 w-14 text-xl font-light bg-secondary rounded-full flex items-center justify-center"
-            onClick={() => handleChangeStep(-10)}>
-            -{configData?.step.times(10).toString()}
+            onClick={() => handleStepChange(-10)}>
+            -{currentConfig?.step.times(10).toString()}
           </div>
           <div
             className="h-14 w-14 text-3xl font-light bg-secondary rounded-full flex leading-[3.0rem] justify-center"
-            onClick={() => handleChangeStep(-1)}>
+            onClick={() => handleStepChange(-1)}>
             -
           </div>
         </div>
 
         <div className="w-24 whitespace-nowrap text-center text-xl font-light text-primary/40">
-          {configData?.min.toString()} {configData?.unit}
+          {currentConfig?.min.toString()} {currentConfig?.unit}
         </div>
 
         <SliderHighlight
           className="w-[32rem]"
-          onValueChange={handleChangeValue}
-          value={[configData?.value.toNumber() ?? 0]}
-          min={configData?.min.toNumber() ?? 0}
-          max={configData?.max.toNumber() ?? 0}
-          step={configData?.step.toNumber() ?? 0}
+          onValueChange={handleSliderChange}
+          value={[currentConfig?.value.toNumber() ?? 0]}
+          min={currentConfig?.min.toNumber() ?? 0}
+          max={currentConfig?.max.toNumber() ?? 0}
+          step={currentConfig?.step.toNumber() ?? 0}
         />
 
         <div className="w-24 whitespace-nowrap text-center text-xl font-light text-primary/40">
-          {configData?.max.toString()} {configData?.unit}
+          {currentConfig?.max.toString()} {currentConfig?.unit}
         </div>
 
         <div className="flex items-center justify-center gap-6">
           <div
             className="h-14 w-14 text-3xl font-light bg-secondary rounded-full flex leading-[2.8rem] justify-center"
-            onClick={() => handleChangeStep(1)}>
+            onClick={() => handleStepChange(1)}>
             +
           </div>
           <div
             className="h-14 w-14 text-xl font-light bg-secondary rounded-full flex items-center justify-center"
-            onClick={() => handleChangeStep(10)}>
-            +{configData?.step.times(10).toString()}
+            onClick={() => handleStepChange(10)}>
+            +{currentConfig?.step.times(10).toString()}
           </div>
         </div>
       </div>
@@ -168,15 +164,15 @@ export default function ParameterConfig({configData, onChange, config}: Paramete
       <div className="flex items-center justify-center gap-8 text-lg">
         <div className="flex items-center gap-1">
           <PlusMinusSquareIcon />
-          {configData?.value
-            .minus(configData?.origin)
+          {currentConfig?.value
+            .minus(currentConfig?.origin)
             .toString()}{" "}
-          {configData?.unit}
+          {currentConfig?.unit}
         </div>
 
         <div className="flex items-center gap-1">
           <ArchiveIcon strokeWidth={1.5} />
-          {configData?.origin.toString()} {configData?.unit}
+          {currentConfig?.origin.toString()} {currentConfig?.unit}
         </div>
       </div>
     </div>

@@ -25,7 +25,7 @@ import BuckAPIRequest from "@/api/buck";
 import Decimal from "decimal.js";
 
 const Index = () => {
-  const { tabs, activeTabIndex, updateTab } = useTabStore();
+  const { tabs, activeTabIndex, needExecuteIndex, setNeedExecuteIndex, updateProfileData } = useTabStore();
   const activeTab = useMemo(() => {
     return activeTabIndex !== null ? tabs[activeTabIndex] : null;
   }, [activeTabIndex, tabs]);
@@ -73,14 +73,8 @@ const Index = () => {
         data: saveData,
       });
       if (activeTab) {
-        updateTab({
-          ...activeTab,
-          status: "saved",
-          profile: {
-            ...activeTab.profile,
-            data: saveData,
-          },
-        });
+        updateProfileData(activeTab.id, saveData);
+        activeTab.status = "saved";
       }
       toast.success("保存成功");
     } catch (error) {
@@ -92,40 +86,45 @@ const Index = () => {
     setConfigKey(config);
   }
 
-  function handleParameterChange(newConfigData: ConfigDataType) {
-    setConfigData((prev) => {
-      if (!prev) return null;
-      const newConfig = { ...prev[configKey], value: newConfigData.value };
-      return { ...prev, [configKey]: newConfig };
-    });
+  function handleParameterChange(
+    newConfigData: Record<ConfigKeyType, ConfigDataType>
+  ) {
+    setConfigData(newConfigData);
 
-    // 更新 tab
     if (activeTab && configData) {
-      updateTab({
-        ...activeTab,
-        status: "unsaved",
-        profile: {
-          ...activeTab.profile,
-          data: convertDecimalDataToStringData({
-            ...configData,
-            [configKey]: newConfigData,
-          }),
-        },
-      });
+      updateProfileData(activeTab.id, newConfigData);
+      activeTab.status = "unsaved";
     }
   }
 
-  async function handleExecute() {
-    const submitData = {} as Record<ConfigKeyType, string>; 
+  function handleChangeBuck(newBuckData: Record<string, Decimal>) {
+    if (!activeTab) return;
+    const currentBuckChangeValue = activeTab.buckChangeValue;
+    for (const key in newBuckData) {
+      if (Object.prototype.hasOwnProperty.call(newBuckData, key)) {
+        currentBuckChangeValue[key as ConfigKeyType] = new Decimal(
+          currentBuckChangeValue[key as ConfigKeyType]
+        ).plus(newBuckData[key as ConfigKeyType]).toString();
+      }
+    }
 
+    setNeedExecuteIndex(activeTabIndex);
+  }
+
+  async function handleExecute() {
+    const submitData = {} as Record<ConfigKeyType, string>;
     for (const key in configData) {
       if (key !== "unselect") {
         const configItem = configData[key as ConfigKeyType];
         const currentData = currentBuckData?.[key as ConfigKeyType] || configItem.origin;
-        const changeValue = configItem.value.minus(currentData);
+        const changeValue = new Decimal(configItem.value).minus(currentData);
         submitData[key as ConfigKeyType] = changeValue.toString();
       }
     }
+
+    // 处理 L50-2 和 L50-2-R, 分别加上 L53-1 和 L53-1-R 的变化值
+    submitData["L50-2"] = new Decimal(submitData["L50-2"]).add(submitData["L53-1"]).toString();
+    submitData["L50-2-R"] = new Decimal(submitData["L50-2-R"]).add(submitData["L53-1-R"]).toString();
 
     try {
       await BuckAPIRequest.submitAction(submitData);
@@ -141,8 +140,11 @@ const Index = () => {
         updatedBuckData[key as ConfigKeyType] = currentValue.add(changeValue);
       }
 
+      // 处理 L50-2 和 L50-2-R, 分别减去 L53-1 和 L53-1-R 的变化值
+      updatedBuckData["L50-2"] = updatedBuckData["L50-2"].minus(submitData["L53-1"]);
+      updatedBuckData["L50-2-R"] = updatedBuckData["L50-2-R"].minus(submitData["L53-1-R"]);
+
       setCurrentBuckData(updatedBuckData);
-      console.log(submitData);
       toast.success("执行成功");
     } catch (error) {
       console.error(error);
@@ -181,8 +183,9 @@ const Index = () => {
             {configKey !== "unselect" && (
               <ParameterConfig
                 config={configKey}
-                configData={configData ? configData[configKey] : null}
+                configData={configData}
                 onChange={handleParameterChange}
+                onChangeBuck={handleChangeBuck}
               />
             )}
           </div>
