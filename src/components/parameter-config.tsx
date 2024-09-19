@@ -5,6 +5,7 @@ import PlusMinusSquareIcon from "@/components/icon/PlusMinusSquareIcon";
 import { ArchiveIcon } from "lucide-react";
 import Decimal from "decimal.js";
 import { ConfigDataType, ConfigKeyType } from "./profile";
+import { checkA18H17Validity } from "@/lib/utils";
 
 interface ParameterConfigProps {
   configData: Record<ConfigKeyType, ConfigDataType> | null;
@@ -55,6 +56,22 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
 
     if (config === "L53-1-R") {
       configData["L50-2-R"].value = configData["L50-2-R"].value.minus(changeDis);
+    }
+
+    if (config === "A18" || config === "H17") {
+      let validationResult;
+      if (config === "A18") {
+        validationResult = checkA18H17Validity(finalValue, configData["H17"].value);
+      }
+
+      if (config === "H17") {
+        validationResult = checkA18H17Validity(configData["A18"].value, finalValue);
+      }
+
+      if (validationResult && !validationResult.isValid) {
+        toast.error(validationResult.errorMessage);
+        return;
+      }
     }
 
     configData[config].value = finalValue;
