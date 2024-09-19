@@ -829,7 +829,7 @@ export default function Control({
                         A18
                       </tspan>
                     </text>
-                    <g id="circle">
+                    <g id="circle" >
                       <g id="Group 33871">
                         <mask
                           id="mask2_6_2"
@@ -845,7 +845,7 @@ export default function Control({
                             fill="white"
                           />
                         </mask>
-                        <g mask="url(#mask2_6_2)">
+                        <g mask="url(#mask2_6_2)" className="pointer-events-none">
                           <path
                             id="Ellipse 6"
                             d="M298.001 144C298.001 202.542 250.543 250 192.001 250C133.459 250 86.0011 202.542 86.0011 144C86.0011 85.4577 133.459 37.9998 192.001 37.9998C250.543 37.9998 298.001 85.4577 298.001 144Z"
