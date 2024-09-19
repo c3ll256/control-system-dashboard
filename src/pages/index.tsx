@@ -112,37 +112,49 @@ const Index = () => {
   }
 
   async function handleExecute() {
-    const submitData = {} as Record<ConfigKeyType, string>;
+    if (!configData) return;
+
+    const submitData = {} as Record<string, string[]>;
     for (const key in configData) {
       if (key !== "unselect") {
         const configItem = configData[key as ConfigKeyType];
         const currentData = currentBuckData?.[key as ConfigKeyType] || configItem.origin;
         const changeValue = new Decimal(configItem.value).minus(currentData);
-        submitData[key as ConfigKeyType] = changeValue.toString();
+        submitData[key] = [changeValue.toString()];
       }
     }
 
     // 处理 L50-2 和 L50-2-R, 分别加上 L53-1 和 L53-1-R 的变化值
-    submitData["L50-2"] = new Decimal(submitData["L50-2"]).add(submitData["L53-1"]).toString();
-    submitData["L50-2-R"] = new Decimal(submitData["L50-2-R"]).add(submitData["L53-1-R"]).toString();
+    submitData["L50-2"] = [new Decimal(submitData["L50-2"][0]).add(submitData["L53-1"][0]).toString()];
+    submitData["L50-2-R"] = [new Decimal(submitData["L50-2-R"][0]).add(submitData["L53-1-R"][0]).toString()];
+
+    // 单独处理 A18 和 H17，将它们合为一个叫做 A18-H17 的参数
+    if (submitData["A18"] || submitData["H17"]) {
+      submitData["A18-H17"] = [configData["A18"].value.toString(), configData["H17"].value.toString()];
+    }
 
     try {
       await BuckAPIRequest.submitAction(submitData);
+
+      // 去除 A18-H17，防止后续操作问题
+      if (submitData["A18-H17"]) {
+        delete submitData["A18-H17"];
+      }
 
       const updatedBuckData = {
         ...(currentBuckData || {}),
       } as Record<ConfigKeyType, Decimal>;
 
       for (const key in submitData) {
-        const changeValue = new Decimal(submitData[key as ConfigKeyType]);
+        const changeValue = new Decimal(submitData[key][0]);
         const currentValue =
           updatedBuckData[key as ConfigKeyType] || configData?.[key as ConfigKeyType]?.origin || new Decimal(0);
-        updatedBuckData[key as ConfigKeyType] = currentValue.add(changeValue);
+        updatedBuckData[key as ConfigKeyType] = new Decimal(currentValue).add(changeValue);
       }
 
       // 处理 L50-2 和 L50-2-R, 分别减去 L53-1 和 L53-1-R 的变化值
-      updatedBuckData["L50-2"] = updatedBuckData["L50-2"].minus(submitData["L53-1"]);
-      updatedBuckData["L50-2-R"] = updatedBuckData["L50-2-R"].minus(submitData["L53-1-R"]);
+      updatedBuckData["L50-2"] = updatedBuckData["L50-2"].minus(submitData["L53-1"][0]);
+      updatedBuckData["L50-2-R"] = updatedBuckData["L50-2-R"].minus(submitData["L53-1-R"][0]);
 
       setCurrentBuckData(updatedBuckData);
       toast.success("执行成功");
