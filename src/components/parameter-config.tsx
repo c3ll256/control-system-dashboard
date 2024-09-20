@@ -58,6 +58,22 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
       configData["L50-2-R"].value = configData["L50-2-R"].value.minus(changeDis);
     }
 
+    if (config === "H5-1") {
+      configData["H5-2"].value = configData["H5-2"].value.add(changeDis);
+    }
+
+    if (config === "H5-2") {
+      configData["H5-1"].value = configData["H5-1"].value.add(changeDis);
+    }
+
+    if (config === "H30-1") {
+      configData["H5-1"].value = configData["H5-1"].value.add(changeDis);
+    }
+
+    if (config === "H30-2") {
+      configData["H5-2"].value = configData["H5-2"].value.add(changeDis);
+    }
+
     if (config === "A18" || config === "H17") {
       let validationResult;
       if (config === "A18") {

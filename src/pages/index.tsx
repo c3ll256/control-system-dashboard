@@ -128,10 +128,17 @@ const Index = () => {
     submitData["L50-2"] = [new Decimal(submitData["L50-2"][0]).add(submitData["L53-1"][0]).toString()];
     submitData["L50-2-R"] = [new Decimal(submitData["L50-2-R"][0]).add(submitData["L53-1-R"][0]).toString()];
 
+    // 处理 H5-1 和 H5-2，分别减去 H30-1 和 H30-2 的变化值
+    submitData["H5-1"] = [new Decimal(submitData["H5-1"][0]).minus(submitData["H30-1"][0]).toString()]; 
+    submitData["H5-2"] = [new Decimal(submitData["H5-2"][0]).minus(submitData["H30-2"][0]).toString()];
+
     // 单独处理 A18 和 H17，将它们合为一个叫做 A18-H17 的参数
     if (submitData["A18"] || submitData["H17"]) {
       submitData["A18-H17"] = [configData["A18"].value.toString(), configData["H17"].value.toString()];
     }
+
+    // 单独计算离地高度，是 configData 中的 H5-1 减去 H30-1
+    submitData["lift"] = [configData["H5-1"].value.minus(configData["H30-1"].value).toString()];
 
     try {
       await BuckAPIRequest.submitAction(submitData);
@@ -139,6 +146,11 @@ const Index = () => {
       // 去除 A18-H17，防止后续操作问题
       if (submitData["A18-H17"]) {
         delete submitData["A18-H17"];
+      }
+
+      // 去除 lift
+      if (submitData["lift"]) {
+        delete submitData["lift"];
       }
 
       const updatedBuckData = {
@@ -155,6 +167,10 @@ const Index = () => {
       // 处理 L50-2 和 L50-2-R, 分别减去 L53-1 和 L53-1-R 的变化值
       updatedBuckData["L50-2"] = updatedBuckData["L50-2"].minus(submitData["L53-1"][0]);
       updatedBuckData["L50-2-R"] = updatedBuckData["L50-2-R"].minus(submitData["L53-1-R"][0]);
+
+      // 处理 H5-1 和 H5-2，分别减去 H30-1 和 H30-2 的变化值
+      updatedBuckData["H5-1"] = updatedBuckData["H5-1"].add(submitData["H30-1"][0]);
+      updatedBuckData["H5-2"] = updatedBuckData["H5-2"].add(submitData["H30-2"][0]);
 
       setCurrentBuckData(updatedBuckData);
       toast.success("执行成功");
