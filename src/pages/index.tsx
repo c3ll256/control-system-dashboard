@@ -140,6 +140,10 @@ const Index = () => {
     // 单独计算离地高度，是 configData 中的 H5-1 减去 H30-1
     submitData["lift"] = [configData["H5-1"].value.minus(configData["H30-1"].value).toString()];
 
+    // 把 H30-1 和 H30-2 单独存起来
+    submitData["H30-1-raw"] = [configData["H30-1"].value.toString()];
+    submitData["H30-2-raw"] = [configData["H30-2"].value.toString()];
+
     try {
       await BuckAPIRequest.submitAction(submitData);
 
@@ -151,6 +155,14 @@ const Index = () => {
       // 去除 lift
       if (submitData["lift"]) {
         delete submitData["lift"];
+      }
+      
+      // 去除 H30-1 和 H30-2
+      if (submitData["H30-1-raw"]) {
+        delete submitData["H30-1-raw"];
+      }
+      if (submitData["H30-2-raw"]) {
+        delete submitData["H30-2-raw"];
       }
 
       const updatedBuckData = {
