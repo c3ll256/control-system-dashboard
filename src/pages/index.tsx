@@ -73,8 +73,7 @@ const Index = () => {
         data: saveData,
       });
       if (activeTab) {
-        updateProfileData(activeTab.id, saveData);
-        activeTab.status = "saved";
+        updateProfileData(activeTab.id, saveData, "saved");
       }
       toast.success("保存成功");
     } catch (error) {
@@ -92,8 +91,7 @@ const Index = () => {
     setConfigData(newConfigData);
 
     if (activeTab && configData) {
-      updateProfileData(activeTab.id, newConfigData);
-      activeTab.status = "unsaved";
+      updateProfileData(activeTab.id, newConfigData, "unsaved");
     }
   }
 

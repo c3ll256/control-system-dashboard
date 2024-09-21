@@ -41,7 +41,7 @@ export interface TabState {
   needExecuteIndex: number | null;
   setNeedExecuteIndex: (index: number | null) => void;
   resetBuckChangeValue: (id: string) => void;
-  updateProfileData: (id: string, newConfigData: Record<ConfigKeyType, ConfigDataType>) => void;
+  updateProfileData: (id: string, newConfigData: Record<ConfigKeyType, ConfigDataType>, status: "saved" | "unsaved") => void;
 }
 
 export const TabStateCreator: StateCreator<TabState> = (set, get) => ({
@@ -85,11 +85,14 @@ export const TabStateCreator: StateCreator<TabState> = (set, get) => ({
     if (tab) {
       tab.buckChangeValue = createInitialBuckChangeValue();
     }
+    set({ tabs: get().tabs })
   },
-  updateProfileData: (id: string, newConfigData: Record<ConfigKeyType, ConfigDataType>) => {
+  updateProfileData: (id: string, newConfigData: Record<ConfigKeyType, ConfigDataType>, status: "saved" | "unsaved") => {
     const tab = get().tabs.find((t: Tab) => t.id === id);
     if (tab) {
       tab.profile.data = newConfigData;
+      tab.status = status;
     }
+    set({ tabs: get().tabs })
   }
 });
