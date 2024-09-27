@@ -207,7 +207,7 @@ const Index = () => {
           <FolderOpenIcon strokeWidth={1.5} onClick={handleFolderSidebarOpen} />
         </div>
 
-        <div className="absolute w-full h-[2px] bottom-0 left-0 bg-gradient-to-r from-[#2A2860] via-[#8080FF] to-[#2A2860]"></div>
+        <div className="absolute w-full h-[2px] bottom-0 left-0 bg-gradient-to-r from-[#000] via-[#fff] to-[#000]"></div>
       </header>
 
       <div className="flex flex-1 w-full">
