@@ -34,8 +34,8 @@ const PointcloudCollision = () => {
     protobuf.load("/point_cloud.proto")
       .then((root) => {
         const PointClouds = root.lookupType("PointClouds");
-        const socket = new WebSocket('ws://192.168.50.181:8766');
-        controlSocketRef.current = new WebSocket('ws://192.168.50.181:8767'); // Control WebSocket
+        const socket = new WebSocket('ws://127.0.0.1:8766');
+        controlSocketRef.current = new WebSocket('ws://127.0.0.1:8767'); // Control WebSocket
 
         socket.binaryType = 'arraybuffer';
         controlSocketRef.current.binaryType = 'arraybuffer';
@@ -131,9 +131,9 @@ const PointcloudCollision = () => {
             }
           };
 
-          if (protoPointClouds.cloud.points.length > 260000) {
+          // if (protoPointClouds.cloud.points.length > 260000) {
             updatePointCloud(protoPointClouds.cloud.points, newPointCloud);
-          }
+          // }
 
           updatePointCloud(protoPointClouds.objCloud.points, newObjCloud);
           updatePointCloud(protoPointClouds.collisionPoints.points, newCollisionPoints);
