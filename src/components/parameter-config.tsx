@@ -50,12 +50,8 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
     const changeDis = finalValue.minus(currentConfig.value);
     const changeBuck = { [config]: changeDis };
 
-    if (config === "L53-1") {
+    if (config === "L99-1") {
       configData["L50-2"].value = configData["L50-2"].value.minus(changeDis);
-    }
-
-    if (config === "L53-1-R") {
-      configData["L50-2-R"].value = configData["L50-2-R"].value.minus(changeDis);
     }
 
     if (config === "H5-1") {
@@ -127,48 +123,20 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center">
-      <div className="flex flex-col items-center justify-center gap-1">
-        <div className="flex items-center justify-center gap-4">
-          <form
-            className="w-52 h-10 leading-[2.5rem] text-highlight border-highlight/30 border text-2xl font-light bg-secondary rounded-full flex items-center justify-center gap-1"
-            onSubmit={handleSubmit}>
-            <input
-              ref={inputRef}
-              type="number"
-              className="w-[60%] h-full outline-none bg-secondary text-center no-spinner"
-              value={inputValue}
-              onChange={handleInputChange}
-              onBlur={handleInputBlur}
-              onFocus={handleInputFocus}
-            />
-            <div className="text-xl font-light text-primary/40">
-              {currentConfig?.unit}
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-center">
-        <div className="flex items-center justify-center gap-6">
-          <div
-            className="h-14 w-14 text-xl font-light bg-secondary rounded-full flex items-center justify-center"
-            onClick={() => handleStepChange(-10)}>
-            -{currentConfig?.step.times(10).toString()}
+    <div className="w-full h-full flex items-end justify-center gap-10">
+      <div className="w-[800px] flex flex-col gap-3">
+        <div className="flex justify-between">
+          <div className="w-24 whitespace-nowrap text-center text-xl font-light text-primary/40">
+            {currentConfig?.min.toString()} {currentConfig?.unit}
           </div>
-          <div
-            className="h-14 w-14 text-3xl font-light bg-secondary rounded-full flex leading-[3.0rem] justify-center"
-            onClick={() => handleStepChange(-1)}>
-            -
-          </div>
-        </div>
 
-        <div className="w-24 whitespace-nowrap text-center text-xl font-light text-primary/40">
-          {currentConfig?.min.toString()} {currentConfig?.unit}
+          <div className="w-24 whitespace-nowrap text-center text-xl font-light text-primary/40">
+            {currentConfig?.max.toString()} {currentConfig?.unit}
+          </div>
         </div>
 
         <SliderHighlight
-          className="w-[32rem]"
+          className="w-full"
           onValueChange={handleSliderChange}
           value={[currentConfig?.value.toNumber() ?? 0]}
           min={currentConfig?.min.toNumber() ?? 0}
@@ -176,25 +144,63 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
           step={currentConfig?.step.toNumber() ?? 0}
         />
 
-        <div className="w-24 whitespace-nowrap text-center text-xl font-light text-primary/40">
-          {currentConfig?.max.toString()} {currentConfig?.unit}
-        </div>
-
-        <div className="flex items-center justify-center gap-6">
-          <div
-            className="h-14 w-14 text-3xl font-light bg-secondary rounded-full flex leading-[2.8rem] justify-center"
-            onClick={() => handleStepChange(1)}>
-            +
+        <div className="flex justify-between items-center mt-5">
+          <div>
+            <div className="flex items-center justify-center gap-6">
+              <div
+                className="h-14 w-14 text-2xl font-light bg-secondary rounded-md flex items-center justify-center"
+                onClick={() => handleStepChange(-10)}>
+                -{currentConfig?.step.times(10).toString()}
+              </div>
+              <div
+                className="h-14 w-14 text-4xl font-light bg-secondary rounded-md flex leading-[3.0rem] justify-center"
+                onClick={() => handleStepChange(-1)}>
+                -
+              </div>
+            </div>
           </div>
-          <div
-            className="h-14 w-14 text-xl font-light bg-secondary rounded-full flex items-center justify-center"
-            onClick={() => handleStepChange(10)}>
-            +{currentConfig?.step.times(10).toString()}
+
+          <div>
+            <div className="flex flex-col items-center justify-center gap-1">
+              <div className="flex items-center justify-center gap-4">
+                <form
+                  className="w-48 h-14 leading-[2.5rem] text-highlight border-highlight/30 border text-2xl font-light bg-secondary rounded-md flex items-center justify-center gap-1"
+                  onSubmit={handleSubmit}>
+                  <input
+                    ref={inputRef}
+                    type="number"
+                    className="w-[60%] h-full outline-none bg-secondary text-center no-spinner"
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    onFocus={handleInputFocus}
+                  />
+                  <div className="text-xl font-light text-primary/40">
+                    {currentConfig?.unit}
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-center gap-6">
+              <div
+                className="h-14 w-14 text-4xl font-light bg-secondary rounded-md flex leading-[2.8rem] justify-center"
+                onClick={() => handleStepChange(1)}>
+                +
+              </div>
+              <div
+                className="h-14 w-14 text-2xl font-light bg-secondary rounded-md flex items-center justify-center"
+                onClick={() => handleStepChange(10)}>
+                +{currentConfig?.step.times(10).toString()}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-8 text-lg">
+      <div className="w-[100px] flex flex-col items-start justify-center gap-3 text-lg">
         <div className="flex items-center gap-1">
           <PlusMinusSquareIcon />
           {currentConfig?.value

@@ -4,9 +4,19 @@ import { ConfigDataType, ConfigKeyType } from "@/components/profile";
   
 const createInitialBuckChangeValue = (): Record<ConfigKeyType, string> => {
   const keys: ConfigKeyType[] = [
-    "A18", "L63", "L50-2", "L50-2-R", "H17", "H30-1", "H30-1-R", "H5-1",
-    "H30-2", "H30-2-R", "H5-2", "L53-1", "L53-1-R", "W7", "W20-2", "W20-2-R",
-    "W20-1", "W20-1-R", "WBPRP"
+    "L99-1",
+    "L50-2",
+    "L6",
+    "A18",
+    "H17",
+    "H30-1",
+    "H30-2",
+    "H5-1",
+    "H5-2",
+    "W7",
+    "W20-1",
+    "W20-2",
+    "W-BPRP"
   ];
   
   return keys.reduce((acc, key) => {

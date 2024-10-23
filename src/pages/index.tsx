@@ -1,10 +1,9 @@
 import {
-  FileCogIcon,
-  FolderIcon,
   FolderOpenIcon,
   SaveIcon,
 } from "lucide-react";
-import Control from "@/components/control";
+import YControl from "@/components/y-control";
+import XControl from "@/components/x-control";
 import { useEffect, useMemo, useState } from "react";
 
 import Logo from "@/assets/images/index/xonar.svg";
@@ -23,6 +22,9 @@ import ProfileAPIRequest from "@/api/profile";
 import { toast } from "sonner";
 import BuckAPIRequest from "@/api/buck";
 import Decimal from "decimal.js";
+
+import XIcon from "@/assets/images/index/x-icon.png";
+import YIcon from "@/assets/images/index/y-icon.png";
 
 const Index = () => {
   const { tabs, activeTabIndex, needExecuteIndex, setNeedExecuteIndex, updateProfileData } = useTabStore();
@@ -122,9 +124,8 @@ const Index = () => {
       }
     }
 
-    // 处理 L50-2 和 L50-2-R, 分别加上 L53-1 和 L53-1-R 的变化值
-    submitData["L50-2"] = [new Decimal(submitData["L50-2"][0]).add(submitData["L53-1"][0]).toString()];
-    submitData["L50-2-R"] = [new Decimal(submitData["L50-2-R"][0]).add(submitData["L53-1-R"][0]).toString()];
+    // 处理 L50-2 加上 L99-1 的变化值
+    submitData["L50-2"] = [new Decimal(submitData["L50-2"][0]).add(submitData["L99-1"][0]).toString()];
 
     // 处理 H5-1 和 H5-2，分别减去 H30-1 和 H30-2 的变化值
     submitData["H5-1"] = [new Decimal(submitData["H5-1"][0]).minus(submitData["H30-1"][0]).toString()]; 
@@ -174,9 +175,8 @@ const Index = () => {
         updatedBuckData[key as ConfigKeyType] = new Decimal(currentValue).add(changeValue);
       }
 
-      // 处理 L50-2 和 L50-2-R, 分别减去 L53-1 和 L53-1-R 的变化值
-      updatedBuckData["L50-2"] = updatedBuckData["L50-2"].minus(submitData["L53-1"][0]);
-      updatedBuckData["L50-2-R"] = updatedBuckData["L50-2-R"].minus(submitData["L53-1-R"][0]);
+      // 处理 L50-2 , 减去 L99-1 的变化值
+      updatedBuckData["L50-2"] = updatedBuckData["L50-2"].minus(submitData["L99-1"][0]);
 
       // 处理 H5-1 和 H5-2，分别减去 H30-1 和 H30-2 的变化值
       updatedBuckData["H5-1"] = updatedBuckData["H5-1"].add(submitData["H30-1"][0]);
@@ -196,79 +196,108 @@ const Index = () => {
       style={{ fontFamily: "PlusJakartaSans" }}
       onContextMenu={(e) => e.preventDefault()}>
       {/* header */}
-      <header className="relative h-14 w-full flex justify-center items-center bg-black">
+      <header className="relative h-14 w-full flex justify-between items-center bg-black px-8">
         <div className="flex items-center justify-center gap-2">
           <img className="h-14 w-auto" src={Logo} alt="xonar" />
           <span className="text-2xl font-medium">XONAR</span>
         </div>
 
-        <div className="absolute h-full right-8 top-0 flex items-center justify-center gap-8">
+        <div className="h-full flex items-center justify-center gap-8">
           <SaveIcon strokeWidth={1.5} onClick={handleSave} />
           <FolderOpenIcon strokeWidth={1.5} onClick={handleFolderSidebarOpen} />
         </div>
-
-        <div className="absolute w-full h-[2px] bottom-0 left-0 bg-gradient-to-r from-[#000] via-[#fff] to-[#000]"></div>
       </header>
 
       <div className="flex flex-1 w-full">
         <div
           onClick={() => setIsFolderSidebarOpen(false)}
-          className="h-full flex-1 transition-all duration-300 ease-in-out">
+          className="h-full flex-1 flex flex-col transition-all duration-300 ease-in-out">
           {/* tabs */}
           <Tabs />
-          {/* adjust */}
-          <div className="w-full h-48">
-            {configKey !== "unselect" && (
-              <ParameterConfig
-                config={configKey}
-                configData={configData}
-                onChange={handleParameterChange}
-                onChangeBuck={handleChangeBuck}
-              />
-            )}
-          </div>
-          {/* control */}
-          <Control
-            onChange={handleChangeConfig}
-            disabled={isFolderSidebarOpen}
-            configKey={configKey}
-            configData={configData}
-          />
 
-          <div className="mt-6 px-20 flex items-center justify-between gap-2">
-            {activeTab && (
-              <div
-                className="text-[#666666] font-light flex flex-col gap-2"
-                style={{ fontFamily: "MiSans" }}>
-                <div className="flex items-center gap-2">
-                  <FolderIcon
-                    width={20}
-                    height={20}
-                    stroke="#666666"
-                    strokeWidth={1.5}
-                  />
-                  <div>{activeTab.profile.name}</div>
+          <div className="w-full flex-1 flex flex-col gap-6 p-6">
+            {/* control */}
+
+            <div className="flex h-[600px] items-center gap-6 ">
+              <div className="relative w-[61.5%] h-full bg-black rounded-2xl px-8 flex items-center justify-center">
+                <div className="absolute top-6 left-6 flex items-center gap-3">
+                  <img className="h-8 w-8" src={YIcon} alt="" />
+                  <div>Y平面</div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <FileCogIcon
-                    width={20}
-                    height={20}
-                    stroke="#666666"
-                    strokeWidth={1.5}
-                  />
-                  <div>{activeTab.profile.projectName}</div>
-                </div>
+                <YControl
+                  onChange={handleChangeConfig}
+                  disabled={isFolderSidebarOpen}
+                  configKey={configKey}
+                  configData={configData}
+                />
               </div>
-            )}
 
-            {!isFolderSidebarOpen && activeTab && (
-              <RoundedButton
-                className="w-56 h-12 text-lg"
-                onClick={handleExecute}>
-                执行
-              </RoundedButton>
-            )}
+              <div className="relative w-[38.5%] h-full bg-black rounded-2xl px-8 flex items-center justify-center">
+                <div className="absolute top-6 left-6 flex items-center gap-3">
+                  <img className="h-8 w-8" src={XIcon} alt="" />
+                  <div>X平面</div>
+                </div>
+
+                <XControl
+                  onChange={handleChangeConfig}
+                  disabled={isFolderSidebarOpen}
+                  configKey={configKey}
+                  configData={configData}
+                />
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-black w-full h-[220px] flex items-center">
+              {/* adjust */}
+              <div className="w-full h-36">
+                {configKey !== "unselect" && (
+                  <ParameterConfig
+                    config={configKey}
+                    configData={configData}
+                    onChange={handleParameterChange}
+                    onChangeBuck={handleChangeBuck}
+                  />
+                )}
+              </div>
+
+              <div className="mt-6 px-10 flex items-center justify-between gap-2">
+                {/* {activeTab && (
+                  <div
+                    className="text-[#666666] font-light flex flex-col gap-2"
+                    style={{ fontFamily: "MiSans" }}>
+                    <div className="flex items-center gap-2">
+                      <FolderIcon
+                        width={20}
+                        height={20}
+                        stroke="#666666"
+                        strokeWidth={1.5}
+                      />
+                      <div>{activeTab.profile.name}</div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <FileCogIcon
+                        width={20}
+                        height={20}
+                        stroke="#666666"
+                        strokeWidth={1.5}
+                      />
+                      <div>{activeTab.profile.projectName}</div>
+                    </div>
+                  </div>
+                )} */}
+
+                {!isFolderSidebarOpen && activeTab && (
+                  <RoundedButton
+                    className="w-56 h-12 text-lg rounded-md bg-white text-black"
+                    onClick={handleExecute}>
+                    执行
+                  </RoundedButton>
+                )}
+              </div>
+            </div>
+
           </div>
         </div>
 
