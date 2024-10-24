@@ -105,9 +105,9 @@ export function checkA18H17Validity(A18: Decimal, H17: Decimal): ValidationResul
     console.log('BFinal', BFinal.toString());
 
     // 检查 B 电机移动距离是否超出范围
-    if (BFinal.greaterThan(270)) {
-      return { isValid: false, errorMessage: '电机移动距离超出范围' };
-    }
+    // if (BFinal.greaterThan(270)) {
+    //   return { isValid: false, errorMessage: '电机移动距离超出范围' };
+    // }
 
     return { isValid: true };
   } catch (error) {

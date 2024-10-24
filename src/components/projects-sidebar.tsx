@@ -227,10 +227,11 @@ export default function ProjectsSidebar({
   return (
     <motion.div
       style={{ fontFamily: "MiSans", willChange: "width"}}
-      className="h-full border-l overflow-hidden bg-black font-light"
+      className="h-full border-l border-border/60 overflow-hidden bg-black font-light"
       initial={false}
       animate={{
         width: isOpen ? "20rem" : 0,
+        display: isOpen ? "block" : "none",
       }}
       transition={{
         type: "tween",
@@ -238,7 +239,7 @@ export default function ProjectsSidebar({
         duration: 0.3,
       }}>
       <div className="w-[20rem] h-full flex flex-col">
-        <div className="px-8 py-6 border-b text-lg flex flex-col gap-4">
+        <div className="px-8 py-6 border-b border-border/65 text-lg flex flex-col gap-4">
           {/* 新建项目 */}
           <CreateProjectDialog />
 

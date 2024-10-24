@@ -124,7 +124,7 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
 
   return (
     <div className="w-full h-full flex items-end justify-center gap-10">
-      <div className="w-[800px] flex flex-col gap-3">
+      <div className="w-[70%] flex flex-col gap-3">
         <div className="flex justify-between">
           <div className="w-24 whitespace-nowrap text-center text-xl font-light text-primary/40">
             {currentConfig?.min.toString()} {currentConfig?.unit}
@@ -200,7 +200,7 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
         </div>
       </div>
 
-      <div className="w-[100px] flex flex-col items-start justify-center gap-3 text-lg">
+      <div className="w-[10%] flex flex-col items-start justify-center gap-3 text-lg">
         <div className="flex items-center gap-1">
           <PlusMinusSquareIcon />
           {currentConfig?.value
@@ -209,7 +209,7 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
           {currentConfig?.unit}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 whitespace-nowrap">
           <ArchiveIcon strokeWidth={1.5} />
           {currentConfig?.origin.toString()} {currentConfig?.unit}
         </div>

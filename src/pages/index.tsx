@@ -218,7 +218,7 @@ const Index = () => {
           <div className="w-full flex-1 flex flex-col gap-6 p-6">
             {/* control */}
 
-            <div className="flex h-[600px] items-center gap-6 ">
+            <div className="flex h-[70%] items-center gap-6">
               <div className="relative w-[61.5%] h-full bg-black rounded-2xl px-8 flex items-center justify-center">
                 <div className="absolute top-6 left-6 flex items-center gap-3">
                   <img className="h-8 w-8" src={YIcon} alt="" />
@@ -248,7 +248,7 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="rounded-2xl bg-black w-full h-[220px] flex items-center">
+            <div className="w-full h-[30%] rounded-2xl bg-black flex items-center">
               {/* adjust */}
               <div className="w-full h-36">
                 {configKey !== "unselect" && (
