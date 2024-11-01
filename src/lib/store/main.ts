@@ -12,7 +12,7 @@ export interface MainState {
   setSelectedProfile: (profile: Profile | null) => void;
   fetchProjects: () => Promise<void>;
   currentBuckData: Record<ConfigKeyType, Decimal> | null;
-  setCurrentBuckData: (data: Record<ConfigKeyType, Decimal>) => void;
+  setCurrentBuckData: (data: Record<ConfigKeyType, Decimal> | null) => void;
 }
 
 export const MainStateCreator: StateCreator<MainState> = (set) => ({
@@ -26,5 +26,5 @@ export const MainStateCreator: StateCreator<MainState> = (set) => ({
     set({ projects: data });
   },
   currentBuckData: null,
-  setCurrentBuckData: (data: Record<ConfigKeyType, Decimal>) => set({ currentBuckData: data }),
+  setCurrentBuckData: (data: Record<ConfigKeyType, Decimal> | null) => set({ currentBuckData: data }),
 });

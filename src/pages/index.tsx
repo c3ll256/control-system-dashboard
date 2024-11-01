@@ -26,6 +26,23 @@ import Decimal from "decimal.js";
 import XIcon from "@/assets/images/index/x-icon.png";
 import YIcon from "@/assets/images/index/y-icon.png";
 
+// 先临时在这里放着了，后边写成服务端 config
+const buckOriginValue: Record<string, Decimal> = {
+  "L6": new Decimal(500),
+  "W7": new Decimal(336),
+  "A18": new Decimal(20),
+  "H17": new Decimal(760),
+  "H5-1": new Decimal(0), // 无
+  "H5-2": new Decimal(0), // 无
+  "H30-1": new Decimal(300),
+  "H30-2": new Decimal(300),
+  "L50-2": new Decimal(875),
+  "L99-1": new Decimal(1100),
+  "W20-1": new Decimal(336),
+  "W20-2": new Decimal(336),
+  "W-BPRP": new Decimal(0) // 无
+}
+
 const Index = () => {
   const { tabs, activeTabIndex, needExecuteIndex, setNeedExecuteIndex, updateProfileData } = useTabStore();
   const activeTab = useMemo(() => {
@@ -118,7 +135,7 @@ const Index = () => {
     for (const key in configData) {
       if (key !== "unselect") {
         const configItem = configData[key as ConfigKeyType];
-        const currentData = currentBuckData?.[key as ConfigKeyType] || configItem.origin;
+        const currentData = currentBuckData?.[key as ConfigKeyType] || buckOriginValue[key as string];
         const changeValue = new Decimal(configItem.value).minus(currentData);
         submitData[key] = [changeValue.toString()];
       }
@@ -171,7 +188,7 @@ const Index = () => {
       for (const key in submitData) {
         const changeValue = new Decimal(submitData[key][0]);
         const currentValue =
-          updatedBuckData[key as ConfigKeyType] || configData?.[key as ConfigKeyType]?.origin || new Decimal(0);
+          updatedBuckData[key as ConfigKeyType] || buckOriginValue[key as string] || new Decimal(0);
         updatedBuckData[key as ConfigKeyType] = new Decimal(currentValue).add(changeValue);
       }
 
@@ -196,9 +213,9 @@ const Index = () => {
       style={{ fontFamily: "PlusJakartaSans" }}
       onContextMenu={(e) => e.preventDefault()}>
       {/* header */}
-      <header className="relative h-14 w-full flex justify-between items-center bg-black px-8">
+      <header className="relative h-10 w-full flex justify-between items-center bg-black px-8">
         <div className="flex items-center justify-center gap-2">
-          <img className="h-14 w-auto" src={Logo} alt="xonar" />
+          <img className="h-10 w-auto" src={Logo} alt="xonar" />
           <span className="text-2xl font-medium">XONAR</span>
         </div>
 
@@ -219,8 +236,8 @@ const Index = () => {
             {/* control */}
 
             <div className="flex h-[70%] items-center gap-6">
-              <div className="relative w-[61.5%] h-full bg-black rounded-2xl px-8 flex items-center justify-center">
-                <div className="absolute top-6 left-6 flex items-center gap-3">
+              <div className="relative w-[58%] h-full bg-black rounded-2xl px-4 pb-8 flex items-end justify-center">
+                <div className="absolute top-3 left-4 flex items-center gap-3">
                   <img className="h-8 w-8" src={YIcon} alt="" />
                   <div>Y平面</div>
                 </div>
@@ -233,8 +250,8 @@ const Index = () => {
                 />
               </div>
 
-              <div className="relative w-[38.5%] h-full bg-black rounded-2xl px-8 flex items-center justify-center">
-                <div className="absolute top-6 left-6 flex items-center gap-3">
+              <div className="relative w-[42%] h-full bg-black rounded-2xl px-8 pb-8 flex items-end justify-center">
+                <div className="absolute top-3 left-4 flex items-center gap-3">
                   <img className="h-8 w-8" src={XIcon} alt="" />
                   <div>X平面</div>
                 </div>
@@ -297,7 +314,6 @@ const Index = () => {
                 )}
               </div>
             </div>
-
           </div>
         </div>
 

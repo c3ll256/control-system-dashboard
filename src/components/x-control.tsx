@@ -84,7 +84,7 @@ export default function Control({
                     fontSize="12"
                     letterSpacing="0em">
                     <tspan x="136" y="324.396">
-                      W-BPRP
+                      W-AHP
                     </tspan>
                   </text>
                 </g>

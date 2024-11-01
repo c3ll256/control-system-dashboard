@@ -14,10 +14,13 @@ interface ParameterConfigProps {
   config: ConfigKeyType;
 }
 
-
 export default function ParameterConfig({configData, onChange, onChangeBuck, config}: ParameterConfigProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [inputValue, setInputValue] = useState("");
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const scrollPositionRef = useRef(0);
+  const blurTimeoutRef = useRef<NodeJS.Timeout>();
   const currentConfig = useMemo(() => configData?.[config], [config, configData]);
 
   useEffect(() => {
@@ -25,6 +28,69 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
       setInputValue(currentConfig.value.toString());
     }
   }, [currentConfig]);
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // 处理键盘显示和隐藏
+  useEffect(() => {
+    function handleFocus() {
+      setIsKeyboardVisible(true);
+      // 保存当前滚动位置
+      scrollPositionRef.current = window.scrollY;
+      // 清除可能存在的失焦定时器
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+      }
+    }
+
+    function handleBlur() {
+      setIsKeyboardVisible(false);
+      // 添加延时，等待键盘完全收起后再执行操作
+      blurTimeoutRef.current = setTimeout(() => {
+        // 恢复滚动位置
+        window.scrollTo(0, scrollPositionRef.current);
+        // 恢复点击事件
+        if (containerRef.current) {
+          const touchEvent = new TouchEvent('touchstart', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+          });
+          containerRef.current.dispatchEvent(touchEvent);
+        }
+        // 再次触发失焦，确保输入框完全失去焦点
+        if (inputRef.current && document.activeElement === inputRef.current) {
+          inputRef.current.blur();
+        }
+        // 创建一个空的 div 元素并聚焦，然后移除它
+        const tempDiv = document.createElement('div');
+        tempDiv.tabIndex = -1;
+        document.body.appendChild(tempDiv);
+        tempDiv.focus();
+        document.body.removeChild(tempDiv);
+      }, 300);
+    }
+
+    const input = inputRef.current;
+    if (input) {
+      input.addEventListener('focus', handleFocus);
+      input.addEventListener('blur', handleBlur);
+    }
+
+    return () => {
+      if (input) {
+        input.removeEventListener('focus', handleFocus);
+        input.removeEventListener('blur', handleBlur);
+      }
+    };
+  }, []);
 
   function handleValueChange(newValue: Decimal | number) {
     if (!currentConfig) {
@@ -88,7 +154,6 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
 
     configData[config].value = finalValue;
     onChangeBuck(changeBuck);
-
     onChange(configData);
     setInputValue(finalValue.toString());
   }
@@ -96,6 +161,9 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     handleValueChange(new Decimal(inputValue));
+    if (inputRef.current) {
+      inputRef.current.blur();
+    }
   }
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -148,12 +216,12 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
           <div>
             <div className="flex items-center justify-center gap-6">
               <div
-                className="h-14 w-14 text-2xl font-light bg-secondary rounded-md flex items-center justify-center"
+                className="h-14 w-14 text-2xl font-light bg-secondary rounded-md flex items-center justify-center cursor-pointer"
                 onClick={() => handleStepChange(-10)}>
                 -{currentConfig?.step.times(10).toString()}
               </div>
               <div
-                className="h-14 w-14 text-4xl font-light bg-secondary rounded-md flex leading-[3.0rem] justify-center"
+                className="h-14 w-14 text-4xl font-light bg-secondary rounded-md flex leading-[3.0rem] justify-center cursor-pointer"
                 onClick={() => handleStepChange(-1)}>
                 -
               </div>
@@ -186,12 +254,12 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
           <div>
             <div className="flex items-center justify-center gap-6">
               <div
-                className="h-14 w-14 text-4xl font-light bg-secondary rounded-md flex leading-[2.8rem] justify-center"
+                className="h-14 w-14 text-4xl font-light bg-secondary rounded-md flex leading-[2.8rem] justify-center cursor-pointer"
                 onClick={() => handleStepChange(1)}>
                 +
               </div>
               <div
-                className="h-14 w-14 text-2xl font-light bg-secondary rounded-md flex items-center justify-center"
+                className="h-14 w-14 text-2xl font-light bg-secondary rounded-md flex items-center justify-center cursor-pointer"
                 onClick={() => handleStepChange(10)}>
                 +{currentConfig?.step.times(10).toString()}
               </div>
@@ -201,7 +269,7 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
       </div>
 
       <div className="w-[10%] flex flex-col items-start justify-center gap-3 text-lg">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 whitespace-nowrap">
           <PlusMinusSquareIcon />
           {currentConfig?.value
             .minus(currentConfig?.origin)

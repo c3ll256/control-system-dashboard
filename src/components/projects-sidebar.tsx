@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import ProjectFolder from "@/components/project";
-import { FolderPlusIcon, FilePlus2Icon, FileInputIcon, ChevronRightIcon } from "lucide-react";
+import { FolderPlusIcon, FilePlus2Icon, FileInputIcon, ChevronRightIcon, RefreshCcwIcon } from "lucide-react";
 import ProjectAPIRequest from "@/api/project";
 import {
   Dialog,
@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { z } from "zod";
 import {
   Form,
@@ -29,6 +29,7 @@ import IconSpinner from "@/components/icon/IconSpinner";
 import "@/assets/css/fonts.css"
 import ProfileAPIRequest from "@/api/profile";
 import { useMainStore } from "@/lib/store";
+import BuckAPIRequest from "@/api/buck";
 
 interface ProjectsSidebarProps {
   isOpen: boolean;
@@ -218,11 +219,21 @@ export default function ProjectsSidebar({
   const { 
     projects,
     fetchProjects,
+    setCurrentBuckData,
   } = useMainStore();
 
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
+
+  function submitReset() {
+    BuckAPIRequest.submitReset().then(() => {
+      setCurrentBuckData(null);
+      toast.success("重置台架参数成功");
+    }).catch(() => {
+      toast.error("重置台架参数失败");
+    });
+  }
 
   return (
     <motion.div
@@ -250,6 +261,12 @@ export default function ProjectsSidebar({
           <div className="flex items-center gap-2">
             <FileInputIcon strokeWidth={1.5} />
             导入配置文件
+          </div>
+
+          {/* 重置台架参数 */}
+          <div  onClick={submitReset} className="flex items-center gap-2 text-destructive">
+            <RefreshCcwIcon strokeWidth={1.5} />
+            重置台架参数
           </div>
         </div>
 
