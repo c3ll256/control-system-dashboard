@@ -28,19 +28,19 @@ import YIcon from "@/assets/images/index/y-icon.png";
 
 // 先临时在这里放着了，后边写成服务端 config
 const buckOriginValue: Record<string, Decimal> = {
-  "L6": new Decimal(500),
-  "W7": new Decimal(336),
-  "A18": new Decimal(20),
-  "H17": new Decimal(760),
-  "H5-1": new Decimal(0), // 无
-  "H5-2": new Decimal(0), // 无
-  "H30-1": new Decimal(300),
-  "H30-2": new Decimal(300),
-  "L50-2": new Decimal(875),
-  "L99-1": new Decimal(1100),
-  "W20-1": new Decimal(336),
-  "W20-2": new Decimal(336),
-  "W-BPRP": new Decimal(0) // 无
+  "L6": new Decimal(404),
+  "W7": new Decimal(324),
+  "A18": new Decimal(25),
+  "H17": new Decimal(733),
+  "H5-1": new Decimal(500),
+  "H5-2": new Decimal(500),
+  "H30-1": new Decimal(200),
+  "H30-2": new Decimal(200),
+  "L50-2": new Decimal(880),
+  "L99-1": new Decimal(922),
+  "W20-1": new Decimal(324),
+  "W20-2": new Decimal(324),
+  "W-BPRP": new Decimal(170)
 }
 
 const Index = () => {
@@ -145,13 +145,16 @@ const Index = () => {
     submitData["L50-2"] = [new Decimal(submitData["L50-2"][0]).add(submitData["L99-1"][0]).toString()];
 
     // 处理 H5-1 和 H5-2，分别减去 H30-1 和 H30-2 的变化值
-    submitData["H5-1"] = [new Decimal(submitData["H5-1"][0]).minus(submitData["H30-1"][0]).toString()]; 
+    submitData["H5-1"] = [new Decimal(submitData["H5-1"][0]).minus(submitData["H30-1"][0]).toString()];
     submitData["H5-2"] = [new Decimal(submitData["H5-2"][0]).minus(submitData["H30-2"][0]).toString()];
 
     // 单独处理 A18 和 H17，将它们合为一个叫做 A18-H17 的参数
     if (submitData["A18"] || submitData["H17"]) {
       submitData["A18-H17"] = [configData["A18"].value.toString(), configData["H17"].value.toString()];
     }
+
+    // 把 L6 单独存起来
+    submitData["L6-raw"] = [configData["L6"].value.toString()];
 
     // 单独计算离地高度，是 configData 中的 H5-1 减去 H30-1
     submitData["lift"] = [configData["H5-1"].value.minus(configData["H30-1"].value).toString()];
@@ -179,6 +182,11 @@ const Index = () => {
       }
       if (submitData["H30-2-raw"]) {
         delete submitData["H30-2-raw"];
+      }
+
+      // 去除 L6-raw
+      if (submitData["L6-raw"]) {
+        delete submitData["L6-raw"];
       }
 
       const updatedBuckData = {

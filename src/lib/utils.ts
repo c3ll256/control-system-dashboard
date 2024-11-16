@@ -96,8 +96,8 @@ export function checkA18H17Validity(A18: Decimal, H17: Decimal): ValidationResul
 
     const AB = solveEquation(A18);
     const z = calcZ(rad(A18));
-    const ABMove = new Decimal(670).sub(H17).add(z);
-    const BFinal = AB.add(ABMove);
+    const ABMove = new Decimal(583.6).sub(H17).add(z);
+    const BFinal = AB.add(ABMove).sub(139.6);
 
     console.log('AB', AB.toString());
     console.log('z', z.toString());

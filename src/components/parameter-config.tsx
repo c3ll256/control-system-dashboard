@@ -146,6 +146,8 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
         validationResult = checkA18H17Validity(configData["A18"].value, finalValue);
       }
 
+      console.log(validationResult);
+
       if (validationResult && !validationResult.isValid) {
         toast.error(validationResult.errorMessage);
         return;
