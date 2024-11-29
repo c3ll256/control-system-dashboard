@@ -27,7 +27,7 @@ const PointcloudCollision = () => {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const controlSocketRef = useRef<WebSocket | null>(null);
   const transformControlRef = useRef<TransformControls | null>(null);
-  const tempObjCloudRef = useRef<THREE.Points | null>(null);
+  // const tempObjCloudRef = useRef<THREE.Points | null>(null);
   const groupRef = useRef<THREE.Group | null>(null);
 
   // 添加一个函数来切换 TransformControls 的可见性
@@ -146,8 +146,8 @@ const PointcloudCollision = () => {
       .load("/point_cloud.proto")
       .then((root) => {
         const PointClouds = root.lookupType("PointClouds");
-        const socket = new WebSocket("ws://192.168.124.12:8766");
-        controlSocketRef.current = new WebSocket("ws://192.168.124.12:8767");
+        const socket = new WebSocket("ws://192.168.124.11:8766");
+        controlSocketRef.current = new WebSocket("ws://192.168.124.11:8767");
         socket.binaryType = "arraybuffer";
         controlSocketRef.current.binaryType = "arraybuffer";
 

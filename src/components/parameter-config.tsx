@@ -18,7 +18,7 @@ export default function ParameterConfig({configData, onChange, onChangeBuck, con
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [inputValue, setInputValue] = useState("");
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [, setIsKeyboardVisible] = useState(false);
   const scrollPositionRef = useRef(0);
   const blurTimeoutRef = useRef<NodeJS.Timeout>();
   const currentConfig = useMemo(() => configData?.[config], [config, configData]);

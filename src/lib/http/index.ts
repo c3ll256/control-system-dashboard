@@ -1,10 +1,10 @@
 import axios from "axios";
 
 const SERVER_URLS = {
-  default: "https://127.0.0.1:4000/server",
+  default: "http://192.168.124.11:4000",
 };
 
-const WEB_URL = "https://palette.ccsz.co";
+const WEB_URL = "http://192.168.124.11";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NODE_ENV === 'development' ? "" : SERVER_URLS.default,

@@ -44,7 +44,7 @@ const buckOriginValue: Record<string, Decimal> = {
 }
 
 const Index = () => {
-  const { tabs, activeTabIndex, needExecuteIndex, setNeedExecuteIndex, updateProfileData } = useTabStore();
+  const { tabs, activeTabIndex, setNeedExecuteIndex, updateProfileData } = useTabStore();
   const activeTab = useMemo(() => {
     return activeTabIndex !== null ? tabs[activeTabIndex] : null;
   }, [activeTabIndex, tabs]);

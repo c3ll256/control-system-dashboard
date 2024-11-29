@@ -15,7 +15,8 @@ export default defineConfig({
         ws: true,
       },
       '/api': {
-        target: 'http://192.168.124.12:4000',
+        // target: 'http://192.168.124.12:4000',
+        target: 'http://localhost:4000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       }
