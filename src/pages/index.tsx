@@ -32,8 +32,8 @@ const buckOriginValue: Record<string, Decimal> = {
   "W7": new Decimal(324),
   "A18": new Decimal(25),
   "H17": new Decimal(733),
-  "H5-1": new Decimal(500),
-  "H5-2": new Decimal(500),
+  "H5-1": new Decimal(600),
+  "H5-2": new Decimal(600),
   "H30-1": new Decimal(200),
   "H30-2": new Decimal(200),
   "L50-2": new Decimal(880),
@@ -148,6 +148,9 @@ const Index = () => {
     submitData["H5-1"] = [new Decimal(submitData["H5-1"][0]).minus(submitData["H30-1"][0]).toString()];
     submitData["H5-2"] = [new Decimal(submitData["H5-2"][0]).minus(submitData["H30-2"][0]).toString()];
 
+    // 单独保存 H5-1
+    submitData["H5-1-raw"] = [configData["H5-1"].value.toString()];
+
     // 单独处理 A18 和 H17，将它们合为一个叫做 A18-H17 的参数
     if (submitData["A18"] || submitData["H17"]) {
       submitData["A18-H17"] = [configData["A18"].value.toString(), configData["H17"].value.toString()];
@@ -187,6 +190,11 @@ const Index = () => {
       // 去除 L6-raw
       if (submitData["L6-raw"]) {
         delete submitData["L6-raw"];
+      }
+
+      // 去除 H5-1-raw
+      if (submitData["H5-1-raw"]) {
+        delete submitData["H5-1-raw"];
       }
 
       const updatedBuckData = {

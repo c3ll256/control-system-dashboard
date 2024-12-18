@@ -146,8 +146,8 @@ const PointcloudCollision = () => {
       .load("/point_cloud.proto")
       .then((root) => {
         const PointClouds = root.lookupType("PointClouds");
-        const socket = new WebSocket("ws://192.168.124.11:8766");
-        controlSocketRef.current = new WebSocket("ws://192.168.124.11:8767");
+        const socket = new WebSocket("ws://192.168.50.172:8766");
+        controlSocketRef.current = new WebSocket("ws://192.168.50.172:8767");
         socket.binaryType = "arraybuffer";
         controlSocketRef.current.binaryType = "arraybuffer";
 
