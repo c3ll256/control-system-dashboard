@@ -40,7 +40,7 @@ const buckOriginValue: Record<string, Decimal> = {
   "L99-1": new Decimal(922),
   "W20-1": new Decimal(324),
   "W20-2": new Decimal(324),
-  "W-BPRP": new Decimal(170)
+  "W-AHP": new Decimal(170)
 }
 
 const Index = () => {
@@ -244,7 +244,7 @@ const Index = () => {
       <div className="flex flex-1 w-full">
         <div
           onClick={() => setIsFolderSidebarOpen(false)}
-          className="h-full flex-1 flex flex-col transition-all duration-300 ease-in-out">
+          className={`h-full flex-1 flex flex-col transition-all duration-300 ease-in-out ${isFolderSidebarOpen ? "w-[calc(100%-20rem)]" : "w-full"}`}>
           {/* tabs */}
           <Tabs />
 

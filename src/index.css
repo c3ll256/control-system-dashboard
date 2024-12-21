@@ -102,3 +102,13 @@
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* 针对整个页面 */
+div {
+  scrollbar-width: none; /* 针对 Firefox */
+  -ms-overflow-style: none; /* 针对 IE 和 Edge */
+}
+
+div::-webkit-scrollbar {
+  display: none; /* 针对 Chrome、Safari 和 Edge */
+}

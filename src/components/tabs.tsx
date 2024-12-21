@@ -47,7 +47,7 @@ const Tabs = () => {
   }
 
   return (
-    <div className="flex items-end bg-black h-12 relative">
+    <div className="flex items-end bg-black h-12 relative w-full overflow-auto scroll">
       <AnimatePresence initial={false}>
         {tabs.map((tab, index) => (
           <motion.div

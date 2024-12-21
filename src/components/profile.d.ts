@@ -11,7 +11,7 @@ export type ConfigKeyType =
   | "W7"
   | "W20-1"
   | "W20-2"
-  | "W-BPRP"
+  | "W-AHP"
   | "unselect";
 
 export type ConfigDataType = {

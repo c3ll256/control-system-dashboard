@@ -56,9 +56,9 @@ export default function Control({
               </g>
               <g id="values">
                 <g
-                  id="W-BPRP"
-                  onClick={() => handleClickConfig("W-BPRP")}
-                  fill={configKey === "W-BPRP" ? "#00EEFF" : "#CCCCCC"}>
+                  id="W-AHP"
+                  onClick={() => handleClickConfig("W-AHP")}
+                  fill={configKey === "W-AHP" ? "#00EEFF" : "#CCCCCC"}>
                   <path
                     id="Line 307"
                     d="M131 309L135.5 311.598L135.5 306.402L131 309ZM194 309L189.5 306.402L189.5 311.598L194 309ZM135.05 309.45L189.95 309.45L189.95 308.55L135.05 308.55L135.05 309.45Z"
@@ -72,12 +72,12 @@ export default function Control({
                     fontWeight="300"
                     letterSpacing="0em">
                     <tspan x="136" y="335.488">
-                      {configData["W-BPRP"].value.toString()}{" "}
-                      {configData["W-BPRP"].unit}
+                      {configData["W-AHP"].value.toString()}{" "}
+                      {configData["W-AHP"].unit}
                     </tspan>
                   </text>
                   <text
-                    id="W-BPRP_2"
+                    id="W-AHP_2"
                     xmlSpace="preserve"
                     style={{ whiteSpace: "pre" }}
                     fontFamily="PlusJakartaSans"

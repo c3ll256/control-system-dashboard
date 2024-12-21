@@ -16,7 +16,7 @@ const createInitialBuckChangeValue = (): Record<ConfigKeyType, string> => {
     "W7",
     "W20-1",
     "W20-2",
-    "W-BPRP"
+    "W-AHP"
   ];
   
   return keys.reduce((acc, key) => {
